@@ -12,13 +12,15 @@
 
 ## Introduction
 
+The goal here is high-precision intrinsic calibration that nobody has to babysit: a mean reprojection error below **0.2 pixel**, reached without anyone hand-picking images or guessing a distortion model.
+
 Camera intrinsics are calibrated once and then used everywhere, so an error made here shows up in every downstream task. How good they are depends on which images you calibrate from and which distortion model you pick — and today both are usually left to the person running the tool. This work decides both from the data:
 
 - **Image selection.** Views whose residual is more than twice the median get dropped, and the rejection is repeated inside each candidate distortion order, so the kept images match that order's own residual scale.
 - **Distortion-order selection.** Each order is scored on held-out images with the intrinsics and distortion frozen and only the board pose refitted, so an extra coefficient has to earn its place on data it never saw.
 - **Interactive tool.** Both steps run inside a calibration tool that shows what was kept, what was dropped, and why.
 
-On our own camera data and five public datasets, image filtering cuts the held-out reprojection error by 25% and order selection by another 5% — the lowest held-out mean of the four configurations compared, with nobody picking images by hand.
+On our own camera data and five public datasets, image filtering cuts the held-out reprojection error by 25% and order selection by another 5% — the lowest held-out mean of the four configurations compared. On our own rig this lands at 0.143 px on the retained images, against 0.151 px for mrcal and 0.299 px for the ROS calibrator; held-out error goes down to 0.148 px on the public sets.
 
 <div align="center">
 
