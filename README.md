@@ -12,15 +12,15 @@
 
 ## Introduction
 
-The goal here is high-precision intrinsic calibration that nobody has to babysit: a mean reprojection error below **0.2 pixel**, reached without anyone hand-picking images or guessing a distortion model.
+This work targets high-accuracy camera intrinsic calibration, with a mean reprojection error below **0.2 pixel** obtained automatically, without manual image selection and without a manually specified distortion model.
 
-Camera intrinsics are calibrated once and then used everywhere, so an error made here shows up in every downstream task. How good they are depends on which images you calibrate from and which distortion model you pick — and today both are usually left to the person running the tool. This work decides both from the data:
+Camera intrinsics are calibrated once and then held fixed throughout deployment, so a calibration error recurs in every downstream task as a systematic geometric bias. The attainable accuracy depends on two decisions that existing toolboxes leave to the operator: which images to estimate from, and which radial distortion order to adopt. Both are determined here from the collected data:
 
-- **Image selection.** Views whose residual is more than twice the median get dropped, and the rejection is repeated inside each candidate distortion order, so the kept images match that order's own residual scale.
-- **Distortion-order selection.** Each order is scored on held-out images with the intrinsics and distortion frozen and only the board pose refitted, so an extra coefficient has to earn its place on data it never saw.
-- **Interactive tool.** Both steps run inside a calibration tool that shows what was kept, what was dropped, and why.
+- **Image selection.** Views whose mean residual exceeds a multiple of the median are rejected iteratively. The rejection is executed independently under each candidate distortion order, so the retained image set is consistent with the residual scale of that order.
+- **Distortion-order selection.** Each candidate is scored on held-out images, with the intrinsics and distortion fixed and only the board pose re-estimated, so an added coefficient is adopted only when it is supported by independent observations.
+- **Interactive tool.** Both steps are integrated into a calibration tool that supports full-pipeline data inspection and parameter estimation.
 
-On our own camera data and five public datasets, image filtering cuts the held-out reprojection error by 25% and order selection by another 5% — the lowest held-out mean of the four configurations compared. On our own rig this lands at 0.143 px on the retained images, against 0.151 px for mrcal and 0.299 px for the ROS calibrator; held-out error goes down to 0.148 px on the public sets.
+Experiments on our own camera data and five public datasets show that image filtering reduces the held-out reprojection error by 25% and order selection by a further 5%, achieving the lowest held-out mean among four compared configurations. On our own rig the pipeline attains 0.143 px on the retained images, against 0.151 px for mrcal and 0.299 px for the ROS calibrator, and the held-out error reaches 0.148 px on the public datasets.
 
 <div align="center">
 
@@ -52,7 +52,7 @@ On our own camera data and five public datasets, image filtering cuts the held-o
 
 </div>
 
-`Rig-A` and `Rig-B` are our own hand-held captures; the rest come from [OpenCalib](https://github.com/PJLab-ADG/SensorsCalibration), ROS and OpenCV. Download links will be added on release.
+`Rig-A` and `Rig-B` are captured hand-held on our own mobile mapping rig; the remaining datasets are those distributed with [OpenCalib](https://github.com/PJLab-ADG/SensorsCalibration), ROS and OpenCV. Download links will be added on release.
 
 ## Interactive Calibration Tool
 
@@ -62,7 +62,7 @@ On our own camera data and five public datasets, image filtering cuts the held-o
 
 </div>
 
-You point it at an image folder, type in the board geometry, and hit calibrate. Every decision the pipeline makes is visible and written out with the result: which images were kept or dropped at each stage and their residuals, the validation split, the four numbers behind the order choice, and how many corners landed in each part of the image. The core runs headless too — every number in the paper came from a script.
+The workflow consists of three steps: importing an image folder, specifying the target geometry, and running the calibration. The tool displays the filtering status of every image and the distribution of calibration points, so that both data-dependent decisions can be inspected within the interface. Alongside the estimated parameters it records the calibration provenance: the images retained and rejected at each stage with their residuals, the estimation and validation subsets, the four quantities behind the order decision, and the number of observations in the four 20% corner zones of the image. The algorithmic core is independent of the interface and can be invoked from scripts; all reported results are produced in this way.
 
 <div align="center">
 
@@ -72,7 +72,7 @@ You point it at an image folder, type in the board geometry, and hit calibrate. 
 
 ## Method
 
-Calibration itself is the usual thing: fit intrinsics `K`, distortion `d` and one board pose per image by minimising reprojection error over an image set `S`.
+Calibration over an image set $\mathcal{S}$ estimates the intrinsics $K$, the distortion $d$ and one board pose $T_i$ per image by minimising the reprojection error:
 
 <div align="center">
 
@@ -82,7 +82,7 @@ $$
 
 </div>
 
-**Image selection.** After a first fit, each view has a mean residual. Anything above twice the median of the set gets thrown out, then the fit is redone — and because the median is recomputed each round, the bar tightens as the bad views leave:
+**Image selection.** After an initial fit, each view is summarised by its mean residual. Views exceeding twice the median of the retained set are rejected, after which the fit is re-solved. The median is recomputed at every iteration, so the threshold tightens as outlier views are removed:
 
 <div align="center">
 
@@ -93,9 +93,9 @@ $$
 
 </div>
 
-> The catch is that this bar depends on the distortion order: a higher order fits the same corners more closely, so its residuals are smaller and a set fixed in advance suits neither order. That's why the rejection runs separately inside each candidate.
+> This threshold depends on the distortion order: a higher order fits the same corners more closely and therefore yields a lower residual scale, so an image set fixed in advance is consistent with neither candidate. The rejection is accordingly executed independently within each candidate order.
 
-**Distortion-order selection.** Every fifth image is held out. For those views the intrinsics and distortion stay frozen and only the 6-DoF board pose is refitted, so the score never touches data that shaped the fit:
+**Distortion-order selection.** Every fifth image in capture order is assigned to a validation subset. On these views the intrinsics and distortion are held fixed and only the six-DoF board pose is re-estimated, so each candidate is evaluated on views that did not contribute to its own estimation:
 
 <div align="center">
 
@@ -105,7 +105,7 @@ $$
 
 </div>
 
-The extra radial coefficient $k_3$ is adopted only if it makes neither the average nor the worst held-out view worse:
+The additional radial coefficient $k_3$ is adopted only when it degrades neither the mean nor the worst-case validation error:
 
 <div align="center">
 
@@ -125,9 +125,9 @@ $$
 
 ## Getting Started
 
-> The tool isn't released yet — the steps below show what running it will look like.
+> The calibration tool has not been released yet; the commands below describe the intended workflow.
 
-Python, for Ubuntu 20.04/22.04 with OpenCV and PySide6.
+The implementation is in Python and targets Ubuntu 20.04/22.04 with OpenCV and PySide6.
 
 ```bash
 git clone https://github.com/JokerJohn/IntrinsicCalib.git
@@ -136,14 +136,14 @@ scripts/setup_env.sh          # conda environment
 scripts/run_gui.sh            # launch the tool
 ```
 
-Point it at a folder of chessboard images, set the board geometry, then `Detect All` and `Calibrate`. Both stages can be switched off to reproduce the ablations above.
+Select a folder of chessboard images, specify the board geometry, then run `Detect All` and `Calibrate`. Each selection stage can be disabled individually, which reproduces the ablations reported above.
 
 ## TODO
 
 - [ ] Release the calibration tool and the evaluation scripts
 - [ ] Release the Rig-A and Rig-B image sets
 - [ ] Add rational and fisheye models to the candidate set
-- [ ] Fold corner-coverage constraints into the filtering criterion
+- [ ] Incorporate corner-coverage constraints into the filtering criterion
 
 ## Citation
 
@@ -163,7 +163,7 @@ Released under the [MIT license](./LICENSE).
 
 ## Acknowledgment
 
-Thanks to [OpenCalib](https://github.com/PJLab-ADG/SensorsCalibration), [ROS camera_calibration](http://wiki.ros.org/camera_calibration), [OpenCV](https://github.com/opencv/opencv) and [mrcal](https://mrcal.secretsauce.net) for the public data and the baselines this work is measured against.
+We thank the maintainers of [OpenCalib](https://github.com/PJLab-ADG/SensorsCalibration), [ROS camera_calibration](http://wiki.ros.org/camera_calibration), [OpenCV](https://github.com/opencv/opencv) and [mrcal](https://mrcal.secretsauce.net) for the public datasets and the baseline implementations used in this evaluation.
 
 ## Contributors
 
