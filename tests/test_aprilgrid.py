@@ -30,7 +30,7 @@ def cached():
 
 
 def test_aprilgrid_rap_extractor(cached):
-    from fast_calib_offline_gui.camera_intrinsics import BoardSpec, detect_corners_ex
+    from intrinsic_calib.camera_intrinsics import BoardSpec, detect_corners_ex
     gray = cv2.imread(FRAME, cv2.IMREAD_GRAYSCALE)
     spec = BoardSpec(pattern="aprilgrid", cols=3, rows=3, square_mm=115.0, tag_spacing=0.3)
     uv, obj, src = detect_corners_ex(gray, spec)
@@ -42,7 +42,7 @@ def test_aprilgrid_rap_extractor(cached):
 
 
 def test_aprilgrid_kalibr_extractor(cached):
-    from fast_calib_offline_gui.kalibr_extractor import detect_aprilgrid_kalibr
+    from intrinsic_calib.kalibr_extractor import detect_aprilgrid_kalibr
     gray = cv2.imread(FRAME, cv2.IMREAD_GRAYSCALE)
     uv, obj, _msg = detect_aprilgrid_kalibr(gray, 3, 3, 0.115, 0.3)
     assert uv is not None and len(uv) == 36

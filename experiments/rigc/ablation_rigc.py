@@ -12,13 +12,11 @@ Rows (the labels of Table II):
 Every row is scored on the raw Kalibr corners of the other session with the
 board pose refitted per view.  The view mask of Table II (a view is a gross
 error when Kalibr, ours-M2 or ours (Full) exceeds three times its own median
-on it) is reused, so the rows Kalibr, ours-M2 and ours (Full) reproduce
-table2_rigc.py exactly.
+on it) is applied to every row.
 
-Reads flir_full_<cam>.json (written by flir_full.py; the shipped copy in
-figures/data/ is used when it has not been run) and the corner caches
-corners_<session>_<cam>.json.  Writes ablation_rigc.json beside this script
-and one intrinsics yaml per ablation row under intrinsics/.
+Reads flir_full_<cam>.json (written by flir_full.py, which must be run first
+for cam0 and cam1) and the corner caches corners_<session>_<cam>.json.
+Writes ablation_rigc.json beside this script.
 """
 import json
 import os
@@ -33,13 +31,12 @@ import flir_full as F  # noqa: E402
 cv2.setNumThreads(1)
 
 ROWS = ["Kalibr", "ours w/o IS", "ours w/o OS", "ours-M2", "ours (Full)"]
-FILE_TAG = {"ours w/o IS": "woIS", "ours w/o OS": "woOS"}
 
 
 def _result(cam):
     p = os.path.join(F.OUT, f"flir_full_{cam}.json")
     if not os.path.exists(p):
-        p = os.path.join(F.OUT, "..", "..", "figures", "data", f"flir_full_{cam}.json")
+        sys.exit(f"{p} not found: run 'python flir_full.py {cam}' first")
     return json.load(open(p))
 
 
@@ -75,9 +72,6 @@ def main():
             row = lambda m: (np.array(R[key]["rows"][m]["K"]), np.array(R[key]["rows"][m]["D"]), {})
             P = {"Kalibr": row("kalibr"), "ours-M2": row("M2-R"), "ours (Full)": row("RAP"),
                  "ours w/o IS": without_is(uvR, objR), "ours w/o OS": without_os(uvA, objA)}
-            for m, tag in FILE_TAG.items():
-                F.write_yaml(os.path.join(F.OUT, "intrinsics", f"{cam}_{train}_{tag}.yaml"),
-                             P[m][0], P[m][1], f"{cam}, estimated on session {train}, {m}")
             uvT, objT = F.sets(obs[test], "K")
             errs = {m: F.view_errors(v[0], v[1], uvT, objT) for m, v in P.items()}
             pv = np.array([[e.mean() for e in errs[m]] for m in ("Kalibr", "ours-M2", "ours (Full)")])

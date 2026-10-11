@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Derive FAST-LIVO2 extrinsics (LiDAR->IMU: extrinsic_R/extrinsic_T, LiDAR->camera: Rcl/Pcl)
+"""Derive the LiDAR-IMU extrinsic (extrinsic_R/extrinsic_T, FAST-LIO convention) and the LiDAR-camera extrinsic (Rcl/Pcl)
 from Kalibr T_cam_imu and FAST-Calib T_cam_lidar.
 
   T_imu_lidar = inv(T_cam_imu) @ T_cam_lidar

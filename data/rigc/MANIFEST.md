@@ -52,11 +52,10 @@ rosbag 2.0, not compressed:
 | `/imu_raw` | `sensor_msgs/Imu` (accelerometer in g) | about 197 Hz |
 
 `experiments/vio/rigd/scripts/split_bag.py` converts the bag once into the two
-inputs of the experiment (LiDAR + IMU for the LiDAR-inertial trajectory; mono8
-images + IMU for the VIO runs). The ground truth
-(`experiments/vio/gt/gt_rigd_office1.txt`), the earlier LiDAR-inertial reference
-(`experiments/vio/ref/rigd_office1_lio.tum`) and the camera-LiDAR extrinsic
-(`experiments/vio/rigd/extrinsics/extrinsic_cam_lidar.yaml`) ship with the repository.
+inputs of the experiment (LiDAR + IMU; mono8 images + IMU for the VIO runs).
+The ground truth (`experiments/vio/gt/gt_rigd_office1.txt`) and the camera-LiDAR
+extrinsic (`experiments/vio/rigd/extrinsics/extrinsic_cam_lidar.yaml`) ship with
+the repository.
 
 ## Files that ship with the repository
 
@@ -70,19 +69,16 @@ images + IMU for the VIO runs). The ground truth
   observations extracted from the two calibration bags (raw Kalibr corners and
   the refined corners of the proposed extractor for every frame). With these
   caches `experiments/rigc/flir_full.py` reproduces Table II without the bags.
-* `frames/D2_cam0_0337.png`: frame 337 of session D2, cam0 (the frame of
-  Supplement Fig. 4 (H) and of `tests/test_aprilgrid.py`).
-* `../../experiments/rigc/intrinsics/`: the intrinsics of every method and
-  session written by `flir_full.py` and `ablation_rigc.py`; input of the VIO
-  experiment.
+* `frames/D2_cam0_0337.png`: frame 337 of session D2, cam0 (used by
+  `tests/test_aprilgrid.py`).
+* `../../experiments/rigc/intrinsics/`: the intrinsics of the sets Kalibr,
+  ours-M2 and ours (Full) per camera and session, written by `flir_full.py`;
+  input of the VIO experiment.
 * `../../experiments/vio/gt/`: the ground-truth trajectories of Table III
   (Rig-C: FAST-LIO2 with manual loop closures; Rig-D: PALoc prior-map
   localisation with manual loop closures).
 * `../../experiments/vio/results/trajectories/`: the OpenVINS trajectories of
   Table III.
-* `../../experiments/vio/ref/*.tum`: the earlier LiDAR-inertial reference
-  trajectories of the three Rig-C sequences and of the Rig-D sequence
-  (FAST-LIVO2 in LIO-only mode, IMU body pose, TUM format).
 
 ## Derived files that the scripts generate
 

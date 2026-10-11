@@ -17,8 +17,8 @@ LiDAR-inertial odometry (FAST-LIO2) refined with manual loop closures.
   because the lowest ring lies largely inside the 4 m blind radius). `evaluate.py` resamples the reference at the VIO
   stamps in either case.
 * World frame: `camera_init` = the IMU frame at the first scan. Body frame: the main IMU `/sensors/imu0`, with
-  T_imu_lidar = inv(T_cam0_imu, Kalibr) . T_cam0_lidar (FAST-Calib), i.e. `extrinsics/derived_extrinsics.yaml`; this is the
-  frame of the earlier reference `ref/*_lio.tum` and the IMU frame of the OpenVINS evaluation.
+  T_imu_lidar = inv(T_cam0_imu, Kalibr) . T_cam0_lidar (FAST-Calib), i.e. `../extrinsics/derived_extrinsics.yaml`; this is the
+  IMU frame of the OpenVINS evaluation.
 
 ## Construction
 
@@ -51,5 +51,3 @@ point of scans at least 10 s apart (point-to-plane), all points / within 5 m of 
 | S3 | raw FAST-LIO2 | 5.6 / 0.21 | 1.5 / 7.3 | 1.5 / 5.6 | 0 |
 
 FAST-LIO2 drifts by only a few centimetres on these runs, so the loop closure changes the trajectories by 0.2-1.3 cm (ATE).
-SE(3) ATE of these references against the earlier FAST-LIVO2 references `../ref/*_lio.tum`: S1 0.7 cm, S2 3.1 cm
-(max 10.2 cm), S3 2.7 cm.

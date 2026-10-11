@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """Intrinsics-set x bag x system matrix with pre-rectified images (see README "Pre-rectified evaluation").
 
-  run_matrix.py [--sets RAP kalibr M2-K M2-R M3-K M2-K-3sigma] [--systems openvins_stereo openvins_mono vins_stereo]
-                [--bags ...] [--wait_min 90] [--min_free_gb 12] [--ref-set {gt,lio}] [--rescore-only]
+  run_matrix.py [--sets RAP kalibr M2-R] [--systems openvins_stereo] [--bags ...]
+                [--wait_min 90] [--min_free_gb 12] [--rescore-only]
 
 For each set (in order) and each bag: waits until cam0/cam1 files of the bag's session exist in
 experiments/rigc/intrinsics/ (D1 for the 02-22 bag, D2 for the 02-23 bags), makes/caches the rectified VIO bag in
 flir_eval_rawbags/<set>/<key>_vio_rect.bag, generates vio/configs/<set>_<session>/ (zero distortion),
 runs the systems, evaluates against the reference set, stores results/matrix/<set>/<key>/<system>.tum and writes
 the summary after every run (resumable: existing .tum files are reused).
-  --ref-set gt  (default)  ground truth (refs.py)  -> results/matrix_gt.json + matrix_gt.md; the trajectories are scored on
-                           copies in results/matrix_gt/<set>/<key>/<system>/, results/matrix/ is not touched by the scoring
-  --ref-set lio            earlier FAST-LIVO2 references ref/*_lio.tum -> results/matrix.json + matrix.md (scored in place)
+Scores against the ground truth (refs.py) -> results/matrix_gt.json + matrix_gt.md; the trajectories are scored on
+copies in results/matrix_gt/<set>/<key>/<system>/, results/matrix/ is not touched by the scoring.
   --rescore-only           score the existing trajectories only (no waiting, rectification or VIO run)
+Sets: kalibr, M2-R and RAP = the rows Kalibr, ours-M2 and ours (Full) of Table III (Rig-C, stereo OpenVINS).
 """
 import argparse, json, os, shutil, subprocess, sys, time, glob
 import numpy as np
@@ -28,11 +28,7 @@ def sh(cmd, log=None):
     return p.returncode, p.stdout
 def free_gb(path): s = os.statvfs(path); return s.f_bavail * s.f_frsize / 1e9
 def score(tum, ref, ref_set, st, b, sysn):
-    """evaluate.py of one trajectory; returns (returncode, output, json path, json file). lio: in place (old behaviour); gt: on a copy."""
-    if ref_set == 'lio':
-        js = f'{tum[:-4]}_vs_lio.json'
-        rc, o = sh(f'{HERE}/evaluate.py --ref {ref} --est {tum} --json {js} --plot {tum[:-4]}_vs_lio.png')
-        return rc, o, js
+    """evaluate.py of one trajectory on a copy; returns (returncode, output, json path)."""
     d = f'{HERE}/results/matrix_{ref_set}/{st}/{b}/{sysn}'; os.makedirs(d, exist_ok=True)
     shutil.copyfile(tum, f'{d}/est.tum'); js = f'{d}/result.json'     # evaluate.py writes est.refinterp.tum next to the estimate
     rc, o = sh(f'{HERE}/evaluate.py --ref {ref} --est {d}/est.tum --json {js}')
@@ -48,14 +44,14 @@ def traj_stats(tum, ref):
             'tracked_to_end': bool(cov >= 0.9 and 0.5 <= ratio <= 2.0 and v.max() < 5.0)}
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('--sets', nargs='+', default=['RAP', 'kalibr', 'M2-K', 'M2-R', 'M3-K', 'M2-K-3sigma'])
-    ap.add_argument('--systems', nargs='+', default=['openvins_stereo', 'openvins_mono', 'vins_stereo'])
+    ap.add_argument('--sets', nargs='+', default=['RAP', 'kalibr', 'M2-R'])
+    ap.add_argument('--systems', nargs='+', default=['openvins_stereo'], choices=['openvins_stereo', 'openvins_mono'])
     ap.add_argument('--bags', nargs='+', default=list(BAGS))
-    ap.add_argument('--md', default=None, help='markdown summary path (default results/matrix_<ref-set>.md, "matrix.md" for lio; only the --sets/--systems given are written)')
+    ap.add_argument('--md', default=None, help='markdown summary path (default results/matrix_gt.md; only the --sets/--systems given are written)')
     ap.add_argument('--wait_min', type=float, default=90); ap.add_argument('--min_free_gb', type=float, default=12)
     refs.add_args(ap); a = ap.parse_args()
     out = f'{HERE}/results/matrix'; os.makedirs(out, exist_ok=True)
-    sfx = '' if a.ref_set == 'lio' else f'_{a.ref_set}'
+    sfx = f'_{a.ref_set}'
     mj = f'{HERE}/results/matrix{sfx}.json'
     if a.md is None: a.md = f'{HERE}/results/matrix{sfx}.md'
     if a.rescore_only: a.wait_min = 0
@@ -64,7 +60,7 @@ def main():
         json.dump(M, open(mj, 'w'), indent=1)
         with open(a.md, 'w') as f:
             f.write('# Intrinsics-set matrix (pre-rectified images, zero distortion in the VIO configs)'
-                    + (', reference set: ground truth (gt)' if a.ref_set == 'gt' else '') + '\n\n'
+                    + ', reference set: ground truth (gt)\n\n'
                     'Cell = ATE trans RMSE [m] / RPE@1m trans RMSE [m]; "x" = did not track to the end (coverage < 90 %, path ratio outside 0.5-2 or speed > 5 m/s); "-" = not run.\n\n')
             for sysn in a.systems:
                 f.write(f'## {sysn}\n\n| set | ' + ' | '.join(a.bags) + ' |\n|---|' + '---|' * len(a.bags) + '\n')
@@ -86,7 +82,7 @@ def main():
                 if not os.path.isdir(run_dir): continue
                 ref = refs.ref_path(a.ref_set, b)
                 M.setdefault(st, {}).setdefault(b, {})
-                if a.ref_set != 'lio': M[st][b]['reference'] = ref
+                M[st][b]['reference'] = ref
                 for sysn in a.systems:
                     tum = f'{run_dir}/{sysn}.tum'; res = {'tum': tum}
                     if os.path.exists(tum) and os.path.getsize(tum) > 0:
@@ -114,19 +110,15 @@ def main():
                 rc, o = sh(f'python3 {HERE}/scripts/make_rect_bag.py {RAW}/{b}_vio.bag {f0} {f1} {rect}.tmp && mv {rect}.tmp {rect}')
                 print(o.strip().splitlines()[-1] if o.strip() else '', flush=True)
                 if rc: print('[matrix] rectification failed', o[-500:], flush=True); continue
-            if a.ref_set != 'lio': M.setdefault(st, {}).setdefault(b, {})['reference'] = refs.ref_path(a.ref_set, b)
+            M.setdefault(st, {}).setdefault(b, {})['reference'] = refs.ref_path(a.ref_set, b)
             M.setdefault(st, {}).setdefault(b, {})['intrinsics'] = {'cam0': f0, 'cam1': f1, 'session': ses}
             ref = refs.ref_path(a.ref_set, b); od = f'{out}/{st}/{b}'; os.makedirs(od, exist_ok=True)
             for sysn in a.systems:
                 tum = f'{od}/{sysn}.tum'
                 if not os.path.exists(tum) or os.path.getsize(tum) == 0:
                     print(f'[matrix] run {st} {b} {sysn}', flush=True)
-                    if sysn.startswith('openvins'):
-                        mode = sysn.split('_')[1]
-                        rc, o = sh(f'{HERE}/vio/run_openvins.sh {rect} {cfg}/openvins/estimator_config.yaml {tum} {mode} serial')
-                    else:
-                        mode = sysn.split('_')[1]
-                        rc, o = sh(f'{HERE}/vio/run_vins.sh {rect} {cfg}/vins/vins_{mode}_imu.yaml {tum}')
+                    mode = sysn.split('_')[1]
+                    rc, o = sh(f'{HERE}/vio/run_openvins.sh {rect} {cfg}/openvins/estimator_config.yaml {tum} {mode} serial')
                     print(o.strip().splitlines()[-1] if o.strip() else '', flush=True)
                 res = {'tum': tum}
                 if os.path.exists(tum) and os.path.getsize(tum) > 0:

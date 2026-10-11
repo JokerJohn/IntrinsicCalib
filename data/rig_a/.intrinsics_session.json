@@ -1,0 +1,238 @@
+{
+ "board": {
+  "pattern": "chessboard",
+  "cols": 11,
+  "rows": 8,
+  "square_mm": 45.0,
+  "tag_spacing": 0.3,
+  "detector": 0,
+  "extractor": "legacy"
+ },
+ "model": "plumb_bob",
+ "fix_k3": true,
+ "images": [
+  {
+   "name": "left-0000.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0001.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0002.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0003.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0004.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0005.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0006.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0007.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0008.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0009.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0010.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0011.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0012.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0013.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0014.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0015.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0016.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0017.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0018.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0019.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0020.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0021.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0022.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0023.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0024.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0025.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0026.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0027.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0028.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0029.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0030.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0031.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0032.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0033.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0034.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0035.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0036.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0037.png",
+   "checked": true,
+   "detected": true
+  },
+  {
+   "name": "left-0038.png",
+   "checked": true,
+   "detected": true
+  }
+ ],
+ "result": {
+  "K": [
+   [
+    661.7266980208664,
+    0.0,
+    986.9437381907959
+   ],
+   [
+    0.0,
+    662.428316546376,
+    537.617693122295
+   ],
+   [
+    0.0,
+    0.0,
+    1.0
+   ]
+  ],
+  "dist": [
+   -0.09283637496765572,
+   -0.01868098151753424,
+   -0.00014589915995713394,
+   -0.00016292353228726858,
+   0.009055931349245847
+  ],
+  "rms": 0.17244864474401775,
+  "model": "plumb_bob"
+ }
+}

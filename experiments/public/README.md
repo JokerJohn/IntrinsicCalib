@@ -17,11 +17,11 @@ The grid size of every session is confirmed by the detection of the complete inn
 ```bash
 cd experiments/public
 ./fetch_datasets.sh            # all sessions (or: opencv | opencalib | ros)
-./write_sessions.sh            # writes .fastcalib_intrinsics.json into every folder
+./write_sessions.sh            # writes .intrinsics_session.json into every folder
 python verify_datasets.py      # independent OpenCV fit of every session (optional)
 ```
 
-`./fetch_datasets.sh mrcal` downloads the mrcal Samyang fisheye sessions, which are not used in the paper. Each fetched folder opens directly in the tool (`python tool/run_intrinsics_gui.py experiments/public/opencalib_front`). `make_gui_session.py <folder> --cols C --rows R --square-mm S` writes the session file for any other folder of chessboard images.
+Each fetched folder opens directly in the tool (`python tool/run_intrinsics_gui.py experiments/public/opencalib_front`). `make_gui_session.py <folder> --cols C --rows R --square-mm S` writes the session file for any other folder of chessboard images.
 
 ## Table I
 
@@ -62,24 +62,26 @@ python rap_headless.py ../../../data/rig_a --out out/fs39_rap.json --corner-cach
 # RAP  ../../../data/rig_a: 39 detected -> stage1 27 -> final 20 | M3 (free k3) | in-sample mean corner 0.143 px
 /usr/bin/python3 ros_baseline.py ../../../data/rig_a --out out/fs39_ros.json
 python mrcal_baseline.py --cache out/fs39_cache.json --outdir out/mrcal_fs39 --out out/fs39_mrcal.json
+python compare.py --cache out/fs39_cache.json --ros out/fs39_ros.json --rap out/fs39_rap.json \
+       [--eval-names <image names>]   # ROS-calib and ours scored on identical observations, intrinsics fixed
 python rig_ab_ros_check.py      # estimator with both selections disabled against the ROS calibrator on Rig-A and Rig-B
 ```
+
+The outputs `out/fs39_rap.json` and `out/fs39_mrcal.json` are also the inputs of `experiments/vio/rigd/scripts/make_intrinsics.py`, which writes the Rig-D intrinsics sets of Table III.
 
 ## Files
 
 | file | role |
 |---|---|
-| `fetch_datasets.sh` (`all`, `opencv`, `opencalib`, `ros`, `mrcal`), `write_sessions.sh`, `make_gui_session.py`, `verify_datasets.py` | download and staging of the sessions |
+| `fetch_datasets.sh` (`all`, `opencv`, `opencalib`, `ros`), `write_sessions.sh`, `make_gui_session.py`, `verify_datasets.py` | download and staging of the sessions |
 | `experiment/final_comparison.py` | Table I |
 | `experiment/rap_headless.py` | headless pipeline (`detect_all`, `run_rap`), used by every script of this directory |
 | `experiment/ros_baseline.py`, `experiment/mrcal_baseline.py` | the two toolbox baselines |
-| `experiment/protocol.py` | shared scoring (`pose_only`) and the ROS-equivalent flags |
+| `experiment/protocol.py` | shared scoring (`pose_only`) and the ROS-equivalent flags, imported by `final_comparison.py` |
+| `experiment/compare.py` | scores the ROS-calib and the proposed parameters on identical observations with the intrinsics fixed |
 | `experiment/rig_ab_ros_check.py` | consistency with the ROS calibrator (Supplement) |
 | `experiment/_qtstub/` | minimal PySide6 stand-in, so that the algorithmic core is imported without the interface |
-| `experiment/run_all.sh` | runs the scripts of this directory in sequence |
-| `experiment/kfold.py`, `experiment/protocol_full.py`, `experiment/compare.py`, `experiment/extractor_check/`, `experiment/fisheye_probe.py`, `experiment/make_undist_figure.py` | additional analyses that are not reported in the paper |
-| `extra/kalibr_baseline/` | Kalibr on the public sessions; this baseline is not reported in the paper |
 
 ## Licences of the sessions
 
-OpenCV samples: Apache-2.0. OpenCalib: Apache-2.0. ROS `image_pipeline` data: BSD. mrcal sample data: distributed with the mrcal documentation. The source of every session should be cited when it is used.
+OpenCV samples: Apache-2.0. OpenCalib: Apache-2.0. ROS `image_pipeline` data: BSD. The source of every session should be cited when it is used.

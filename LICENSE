@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 Xiangcheng Hu
+Copyright (c) 2026 Anonymous Authors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,10 +23,10 @@ SOFTWARE.
 ----------------------------------------------------------------------------
 Third-party code
 
-tool/fast_calib_offline_gui/kalibr_extractor/third_party/ethz_apriltag2 and the
+tool/intrinsic_calib/kalibr_extractor/third_party/ethz_apriltag2 and the
 ported Kalibr target-extraction logic in kalibr_extractor/ are from Kalibr
 (ETH Zurich, Autonomous Systems Lab) and remain under their own BSD license,
-see tool/fast_calib_offline_gui/kalibr_extractor/third_party/KALIBR_LICENSE
+see tool/intrinsic_calib/kalibr_extractor/third_party/KALIBR_LICENSE
 and the package.xml of ethz_apriltag2.
 
 The public calibration sessions fetched by experiments/public/fetch_datasets.sh

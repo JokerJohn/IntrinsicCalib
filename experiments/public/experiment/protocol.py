@@ -33,7 +33,7 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "_qtstub"))
 sys.path.insert(0, os.environ.get("CALIB_TOOL_DIR", os.path.join(HERE, "..", "..", "..", "tool")))
-from fast_calib_offline_gui.camera_intrinsics import BoardSpec, calibrate  # noqa: E402
+from intrinsic_calib.camera_intrinsics import BoardSpec, calibrate  # noqa: E402
 
 from rap_headless import detect_all, run_rap                               # noqa: E402
 
@@ -57,7 +57,7 @@ def pose_only(K, D, objp, sets):
 
 
 def run(folder: str, every: int) -> dict:
-    sess = json.load(open(os.path.join(folder, ".fastcalib_intrinsics.json")))
+    sess = json.load(open(os.path.join(folder, ".intrinsics_session.json")))
     b = sess["board"]
     spec = BoardSpec(pattern=b["pattern"], cols=b["cols"], rows=b["rows"],
                      square_mm=b["square_mm"], detector="auto", extractor="legacy")

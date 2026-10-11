@@ -21,7 +21,7 @@ import sys
 import cv2
 import numpy as np
 
-SESSION_FILE = ".fastcalib_intrinsics.json"
+SESSION_FILE = ".intrinsics_session.json"
 IMG_EXT = (".png", ".jpg", ".jpeg", ".bmp")
 
 

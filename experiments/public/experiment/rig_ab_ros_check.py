@@ -12,7 +12,7 @@ import cv2
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.environ.get('CALIB_TOOL_DIR', os.path.join(HERE, '..', '..', '..', 'tool')))
-from fast_calib_offline_gui.camera_intrinsics import (
+from intrinsic_calib.camera_intrinsics import (
     BoardSpec, detect_corners, calibrate)
 
 SPEC = BoardSpec(pattern='chessboard', cols=11, rows=8, square_mm=45.0,

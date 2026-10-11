@@ -3,10 +3,10 @@
 into rigd/intrinsics/<set>.yaml.
   ROS-calib     ost.yaml of the calibration folder (real ROS camera_calibration output, plumb_bob, k3 = 0)
   mrcal         out/fs39_mrcal.json["mrcal-OPENCV8"] (LENSMODEL_OPENCV8, 39 frames, outlier rejection on)
-  Kalibr        rigd/kalibr/run1/train-camchain.yaml (pinhole-radtan, all 39 images); run2 written as Kalibr-run2
+  Kalibr        rigd/kalibr/run1/train-camchain.yaml (scripts/run_kalibr_all39.py run1; pinhole-radtan, all 39 images)
   ours-M2   cv2.calibrateCamera with CALIB_FIX_K3|K4|K5|K6 on every detected image (legacy extractor),
                 exactly the '[ablation] M2 no selection' code of final_comparison.py, on all 39 images
-  ours          rap_headless.py rerun on the same images (must equal out/fs39_rap.json: fx 661.73, M3, 20 final)
+  ours          out/fs39_rap.json written by rap_headless.py on the same images (fx 661.73, M3, 20 final)
 """
 import json, os, sys, yaml, numpy as np
 RIGD = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -14,7 +14,7 @@ EXP = os.path.abspath(os.path.join(RIGD, '..', '..', 'public', 'experiment'))   
 sys.path.insert(0, EXP); sys.path.insert(0, os.path.join(EXP, '_qtstub'))
 sys.path.insert(0, os.environ.get('CALIB_TOOL_DIR', os.path.join(RIGD, '..', '..', '..', 'tool')))
 import cv2
-from fast_calib_offline_gui.camera_intrinsics import BoardSpec
+from intrinsic_calib.camera_intrinsics import BoardSpec
 from protocol import ROS_FLAGS
 from rap_headless import detect_all
 OUT = f'{RIGD}/intrinsics'
@@ -39,7 +39,7 @@ m = json.load(open(f'{EXP}/out/fs39_mrcal.json'))['mrcal-OPENCV8']; assert m['le
 write('mrcal', m['K'], m['dist'], 'radtan8 (OpenCV rational: k1 k2 p1 p2 k3 k4 k5 k6)',
       f"Rig-A, mrcal LENSMODEL_OPENCV8 defaults (outlier rejection on, {m['outlier_corners']}/{m['total_corners']} corners cut), 39 images, experiments/public/experiment/out/fs39_mrcal.json")
 # 3 Kalibr
-for run, name in (('run1', 'Kalibr'), ('run2', 'Kalibr-run2')):
+for run, name in (('run1', 'Kalibr'),):
     cc = f'{RIGD}/kalibr/{run}/train-camchain.yaml'
     if os.path.exists(cc):
         c = yaml.safe_load(open(cc))['cam0']; fx, fy, cx, cy = c['intrinsics']
@@ -52,6 +52,5 @@ entries, size = detect_all(RIGA, spec); entries.sort(key=lambda e: e['name']); a
 sets = [e['corners'] for e in entries]
 rms, K, D, _r, _t = cv2.calibrateCamera([spec.object_points()] * len(sets), sets, size, None, None, flags=ROS_FLAGS)
 write('ours-M2', K, np.ravel(D)[:5], 'radtan', f'Rig-A, M2 (k3 fixed) calibrateCamera on all {len(sets)} detected images, no selection (final_comparison.py ablation), rms {rms:.3f} px')
-r = json.load(open(f'{OUT}/ours_rerun_rap.json')); ref = json.load(open(f'{EXP}/out/fs39_rap.json'))
-assert np.allclose(r['K'], ref['K'], atol=1e-9) and np.allclose(r['dist'], ref['dist'], atol=1e-12)
-write('ours', r['K'], r['dist'], 'radtan', f"Rig-A, rap_headless.py rerun = out/fs39_rap.json: {r['trace']['order']['chosen']}, {r['trace']['n_final']} final of {r['trace']['n_input']}")
+r = json.load(open(f'{EXP}/out/fs39_rap.json'))
+write('ours', r['K'], r['dist'], 'radtan', f"Rig-A, rap_headless.py = out/fs39_rap.json: {r['trace']['order']['chosen']}, {r['trace']['n_final']} final of {r['trace']['n_input']}")

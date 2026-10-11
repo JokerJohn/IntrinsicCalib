@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Drop a .fastcalib_intrinsics.json into every fetched folder so the
+# Drop a .intrinsics_session.json into every fetched folder so the
 # calibration tool opens it with the right board already filled in.
 #
 # The geometries below are not guesses: cols/rows were confirmed by detecting
@@ -23,6 +23,3 @@ s opencv_right         9  6  30.0
 s opencalib_front     17 15  50.0
 s ros_wide_left        8  6 108.0
 s ros_wide_right       8  6 108.0
-
-# The optional mrcal fisheye sessions receive no session file: both OpenCV
-# detectors fail to recover the 14x14 grid on these images.

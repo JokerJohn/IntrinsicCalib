@@ -3,8 +3,7 @@
 # a flat image folder that the calibration tool opens directly (Add Folder).
 #
 # Every session is a plain chessboard on a perspective camera, which is what
-# the radial-order comparison (M2 vs M3) assumes.  The optional mrcal sessions
-# (fisheye) are fetched only on request and are not used in the paper.
+# the radial-order comparison (M2 vs M3) assumes.
 #
 # Usage:  ./fetch_datasets.sh [dataset ...]      (default: all)
 set -uo pipefail
@@ -71,38 +70,12 @@ PY
   done
 }
 
-# ------------------------------------------------------------------ mrcal ---
-# OPTIONAL / NOT GUI-USABLE.  mrcal's own calibration data: a Sony A7 III behind
-# a Samyang 12 mm *fisheye*, six repeated sessions of ~115 images each, 14x14
-# inner corners at 58.8 mm, with published LENSMODEL_OPENCV4 / OPENCV8 fits.
-# Measured here: both OpenCV detectors find the grid in 0 of 14 frames, at full
-# and at half resolution — the fisheye warp defeats the indexing.  Only usable
-# by feeding the shipped mrgingham corners (corners.vnl) into the core directly.
-# ~640 MB per session, so it is NOT part of `all`.
-MRCAL_BASE="https://mrcal.secretsauce.net/external/2022-11-05--dtla-overpass--samyang--alpha7"
-fetch_mrcal() {
-  local sessions=("${@:-2-f22-infinity 3-f22-infinity}")
-  echo "== mrcal (14x14, 58.8 mm) =="
-  for s in ${sessions[@]}; do
-    d="mrcal_samyang_$s"; mkdir -p "$d/images"
-    curl -fsSL --retry 3 "$MRCAL_BASE/$s/images/" \
-      | grep -o 'href="[^"?/]*\.JPG"' | sed 's/href="//;s/"//' > "$d/.filelist"
-    xargs -a "$d/.filelist" -P 8 -I{} \
-      curl -fsSL --retry 3 --max-time 300 -o "$d/images/{}" "$MRCAL_BASE/$s/images/{}"
-    for f in opencv4.cameramodel opencv8.cameramodel splined.cameramodel corners.vnl; do
-      curl -fsSL --retry 3 -o "$d/$f" "$MRCAL_BASE/$s/$f" || true
-    done
-    echo "   $d: $(ls "$d/images" | wc -l) images, $(du -sh "$d/images" | cut -f1)"
-  done
-}
-
 case "${1:-all}" in
   all)       fetch_opencv; fetch_opencalib; fetch_ros ;;
   opencv)    fetch_opencv ;;
   opencalib) fetch_opencalib ;;
   ros)       fetch_ros ;;
-  mrcal)     shift; fetch_mrcal "$@" ;;
-  *)         echo "unknown: $1 (all|opencv|opencalib|ros|mrcal)"; exit 2 ;;
+  *)         echo "unknown: $1 (all|opencv|opencalib|ros)"; exit 2 ;;
 esac
 
 echo

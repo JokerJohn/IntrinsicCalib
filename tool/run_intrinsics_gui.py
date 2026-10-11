@@ -4,7 +4,7 @@
     python tool/run_intrinsics_gui.py [folder]
 
 The folder holds the chessboard (or AprilGrid) images and, optionally, a
-``.fastcalib_intrinsics.json`` session file (experiments/public/make_gui_session.py
+``.intrinsics_session.json`` session file (experiments/public/make_gui_session.py
 writes one).  Without a folder argument the window opens empty; use
 ``Add Folder``.  Detection, the two-stage image selection, the distortion-order
 selection and the export of ``camera_intrinsics.yaml`` / ``ost.yaml`` are
@@ -18,7 +18,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
 from PySide6.QtWidgets import QApplication  # noqa: E402
-from fast_calib_offline_gui.camera_intrinsics import IntrinsicsDialog  # noqa: E402
+from intrinsic_calib.camera_intrinsics import IntrinsicsDialog  # noqa: E402
 
 
 def main() -> None:

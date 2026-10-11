@@ -40,7 +40,7 @@ def main() -> None:
     ap.add_argument("--exclude", default="")
     args = ap.parse_args()
 
-    sess = json.load(open(os.path.join(args.folder, ".fastcalib_intrinsics.json")))
+    sess = json.load(open(os.path.join(args.folder, ".intrinsics_session.json")))
     b = sess["board"]
     held = set(x for x in args.exclude.split(",") if x)
 

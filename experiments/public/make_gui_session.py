@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Write a .fastcalib_intrinsics.json session next to a folder of chessboard
-images so the FAST-Calib Intrinsics window opens it with the board already set.
+"""Write a .intrinsics_session.json session next to a folder of chessboard
+images so the calibration tool opens it with the board already set.
 
 The schema is the one camera_intrinsics.py::_save_session writes, so the GUI
 restores it verbatim on `Add Folder`:
@@ -20,7 +20,7 @@ import argparse
 import json
 from pathlib import Path
 
-SESSION_FILE = ".fastcalib_intrinsics.json"
+SESSION_FILE = ".intrinsics_session.json"
 # camera_intrinsics.py::load_folder accepts exactly these suffixes
 GUI_EXT = (".png", ".jpg", ".jpeg", ".bmp")
 DETECTORS = {"auto": 0, "sb": 1, "classic": 2}

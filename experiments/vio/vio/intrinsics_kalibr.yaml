@@ -1,8 +1,0 @@
-# Intrinsics set under test (PLACEHOLDER = Kalibr, calib-ouster-flir-dual2/calib-camchain-imu0-cam.yaml).
-# Copy this file, edit the numbers, then: make_vio_config.py <this file> <out_dir>
-# k3 is accepted here but NOT supported by OpenVINS (4-coefficient radtan) nor VINS-Fusion (camodocal
-# PinholeCamera k1 k2 p1 p2); the generator refuses k3 != 0 unless --drop_k3 is given.
-cam0: {fx: 476.90725234274964, fy: 476.95921523826524, cx: 720.5493015512368, cy: 557.5868494955138,
-       k1: -0.2908350629887621, k2: 0.0724987249850815, p1: 0.0005710081088912554, p2: 0.0005936548939904376, k3: 0.0}
-cam1: {fx: 478.46451165302256, fy: 478.7796949494134, cx: 734.8657003453826, cy: 573.1412189681437,
-       k1: -0.2890296141092895, k2: 0.0703383532537141, p1: 0.0003459069507092756, p2: 0.0004923550091926342, k3: 0.0}

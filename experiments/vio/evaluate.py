@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """ATE / RPE of a trajectory against the LIO reference, using evo.
 
-  evaluate.py --ref <lio.tum> --est <run.tum> [--json out.json] [--plot out.png] [--deltas 1 5]
+  evaluate.py --ref <gt.txt> --est <run.tum> [--json out.json] [--plot out.png] [--deltas 1 5]
 
 By default the LIO reference is resampled (linear position / slerp) at the estimate timestamps, because
 LIVO states (and OpenVINS poses) are stamped at image times, ~14 ms after the LiDAR scan stamps.

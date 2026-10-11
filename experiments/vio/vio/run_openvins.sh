@@ -10,8 +10,8 @@ set -uo pipefail
 BAG=$(readlink -f "$1"); CFG=$(readlink -f "$2"); OUT=$(readlink -f -m "$3"); MODE=${4:-mono}; PLAY=${5:-serial}; RATE=${6:-1.0}
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 RAWDIR=${RIGC_DIR:-$HERE/../../../data/rigc}/flir_eval_rawbags   # derived raw-image / rectified bags (generated)
-# VIO_WS: catkin workspace with OpenVINS and VINS-Fusion built (see README)
-source /opt/ros/noetic/setup.bash; source "${VIO_WS:?set VIO_WS to the OpenVINS/VINS-Fusion catkin workspace}/devel/setup.bash"; source "$HERE/../scripts/ros_env.sh"
+# VIO_WS: catkin workspace with OpenVINS built (see README)
+source /opt/ros/noetic/setup.bash; source "${VIO_WS:?set VIO_WS to the OpenVINS catkin workspace}/devel/setup.bash"; source "$HERE/../scripts/ros_env.sh"
 mkdir -p "$(dirname "$OUT")"; STEM=${OUT%.tum}; rm -f "$STEM.pose.bag" "$STEM.pose.bag.active"
 NCAM=1; STEREO=false; if [ "$MODE" = stereo ]; then NCAM=2; STEREO=true; fi
 DUR=$(python3 -c "import rosbag,sys; b=rosbag.Bag(sys.argv[1]); print(int(b.get_end_time()-b.get_start_time()+0.999))" "$BAG")

@@ -33,7 +33,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "_qtstub"))
 sys.path.insert(0, os.environ.get("CALIB_TOOL_DIR", os.path.join(HERE, "..", "..", "..", "tool")))
-from fast_calib_offline_gui.camera_intrinsics import BoardSpec  # noqa: E402
+from intrinsic_calib.camera_intrinsics import BoardSpec  # noqa: E402
 
 import mrcal_baseline as MB                                     # noqa: E402
 from protocol import ROS_FLAGS, pose_only                       # noqa: E402
@@ -119,7 +119,7 @@ def main() -> None:
     table = {}
     for folder in args.folders:
         name = os.path.basename(folder.rstrip("/"))
-        sess = json.load(open(os.path.join(folder, ".fastcalib_intrinsics.json")))
+        sess = json.load(open(os.path.join(folder, ".intrinsics_session.json")))
         b = sess["board"]
         spec = BoardSpec(pattern=b["pattern"], cols=b["cols"], rows=b["rows"],
                          square_mm=b["square_mm"], detector="auto", extractor="legacy")

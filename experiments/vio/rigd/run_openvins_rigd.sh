@@ -6,7 +6,7 @@
 set -uo pipefail
 BAG=$(readlink -f "$1"); CFG=$(readlink -f "$2"); OUT=$(readlink -f -m "$3")
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-source /opt/ros/noetic/setup.bash; source "${VIO_WS:?set VIO_WS to the OpenVINS/VINS-Fusion catkin workspace}/devel/setup.bash"; source "$HERE/../scripts/ros_env.sh"
+source /opt/ros/noetic/setup.bash; source "${VIO_WS:?set VIO_WS to the OpenVINS catkin workspace}/devel/setup.bash"; source "$HERE/../scripts/ros_env.sh"
 mkdir -p "$(dirname "$OUT")"; STEM=${OUT%.tum}; rm -f "$STEM.pose.bag" "$STEM.pose.bag.active"
 DUR=$(python3 -c "import rosbag,sys; b=rosbag.Bag(sys.argv[1]); print(int(b.get_end_time()-b.get_start_time()+0.999))" "$BAG")
 export ROS_LOG_DIR="$STEM.roslog"; mkdir -p "$ROS_LOG_DIR"

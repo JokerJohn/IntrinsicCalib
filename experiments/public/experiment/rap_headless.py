@@ -30,7 +30,7 @@ sys.path.insert(0, os.path.join(HERE, "_qtstub"))
 sys.path.insert(0, os.environ.get("CALIB_TOOL_DIR", os.path.join(HERE, "..", "..", "..", "tool")))
 
 import cv2  # noqa: E402
-from fast_calib_offline_gui.camera_intrinsics import (  # noqa: E402
+from intrinsic_calib.camera_intrinsics import (  # noqa: E402
     PRUNE_FACTOR, BoardSpec, calibrate, detect_corners_ex,
 )
 
@@ -149,7 +149,7 @@ def main() -> None:
     ap.add_argument("--exclude", default="", help="comma-separated names to withhold")
     args = ap.parse_args()
 
-    sess = json.load(open(os.path.join(args.folder, ".fastcalib_intrinsics.json")))
+    sess = json.load(open(os.path.join(args.folder, ".intrinsics_session.json")))
     b = sess["board"]
     spec = BoardSpec(pattern=b["pattern"], cols=b["cols"], rows=b["rows"],
                      square_mm=b["square_mm"], detector="auto", extractor="legacy")

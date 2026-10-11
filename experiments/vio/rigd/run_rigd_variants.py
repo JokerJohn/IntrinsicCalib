@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Sensitivity check: is the single-run ranking of run_rigd.py larger than the run-to-run sensitivity of mono VIO?
+"""Five front-end settings per intrinsics set (Table III reports the median over v0..v4 for Rig-D).
 Every set is rerun with four front-end variants (identical for all sets; the base run of run_rigd.py is variant v0):
   v1 num_pts 200, v2 num_pts 300, v3 fast_threshold 15, v4 fast_threshold 25   (base: num_pts 250, fast_threshold 20)
   run_rigd_variants.py run [--sets ...]   (rectified bag made once per set, 4 variants in parallel, bag deleted afterwards)
-  run_rigd_variants.py eval               -> rigd_variants_gt.json / .md (median and range over v0..v4 per set), --ref-set gt (default)
-  --ref-set lio                          earlier FAST-LIVO2 reference (in place) -> rigd_variants.json / .md
+  run_rigd_variants.py eval               -> rigd_variants_gt.json / .md (median and range over v0..v4 per set, against the ground truth)
   --rescore-only                         same as the stage 'eval' (re-scores the existing trajectories, no VIO run)
 """
 import argparse, json, os, re, shutil, subprocess, sys, numpy as np
@@ -18,7 +17,7 @@ def main():
     B.refs.add_args(ap); a = ap.parse_args()
     if a.rescore_only: a.stage = 'eval'
     if a.stage is None: ap.error('stage (run | eval) or --rescore-only required')
-    sfx = '' if a.ref_set == 'lio' else f'_{a.ref_set}'
+    sfx = f'_{a.ref_set}'
     for d in ('rect', 'runs', 'configs'): os.makedirs(f'{HERE}/{d}', exist_ok=True)
     for st in a.sets: os.makedirs(f'{HERE}/runs/{st}', exist_ok=True)
     if a.stage == 'run':
@@ -46,14 +45,9 @@ def main():
         for v in ['v0'] + list(V):
             tum = f'{HERE}/runs/{st}/openvins_mono.tum' if v == 'v0' else f'{HERE}/runs/{st}/openvins_mono_{v}.tum'
             if not os.path.exists(tum) or os.path.getsize(tum) == 0: R[st][v] = {'error': 'no trajectory'}; continue
-            if a.ref_set == 'lio':   # old behaviour: reuse the stored v0 score of run_rigd.py eval
-                js = tum[:-4] + '_vs_lio.json'
-                if v != 'v0' or not os.path.exists(js): B.sh(f'timeout 600 {HERE}/../evaluate.py --ref {B.REF} --est {tum} --json {js}')
-                r = json.load(open(js)); r.update(B.traj_stats(tum, B.REF))
-            else: r = B.score_run(tum, a.ref_set)
-            R[st][v] = r
+            R[st][v] = B.score_run(tum, a.ref_set)
     json.dump(R, open(f'{HERE}/rigd_variants{sfx}.json', 'w'), indent=1)
-    L = ['# Front-end sensitivity' + (' (ground-truth reference)' if a.ref_set == 'gt' else '') + ': 5 runs per set (v0 = base; v1/v2 num_pts 200/300; v3/v4 fast_threshold 15/25), identical for all sets', '',
+    L = ['# Front-end settings (ground-truth reference): 5 runs per set (v0 = base; v1/v2 num_pts 200/300; v3/v4 fast_threshold 15/25), identical for all sets', '',
          'median [min-max] over the 5 runs; tracked = runs tracked to the end (run_rigd.py criterion)', '',
          '| intrinsics | ATE [m] | RPE@1m [m] | RPE@5m [m] | tracked | per-run ATE v0..v4 [m] |', '|---|---|---|---|---|---|']
     for st in a.sets:

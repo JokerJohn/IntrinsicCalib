@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """One pass over the original Rig-D bag:
   split_bag.py <rigd_office1.bag> <out_dir>
-  -> <out_dir>/rigd_office1_lio.bag   /echo1_roi0 + /imu_raw verbatim (FAST-LIVO2 LIO reference input)
+  -> <out_dir>/rigd_office1_lio.bag   /echo1_roi0 + /imu_raw verbatim (LiDAR-inertial input, not used by the VIO runs)
   -> <out_dir>/rigd_office1_raw.bag   /imu_raw verbatim + /cam0/image_raw mono8 1920x1080 (rgb8 -> gray, header kept)
   -> <out_dir>/frames/*.png          a few full-resolution colour frames for the lens sanity check
   -> <out_dir>/stream_stats.json     message counts, stamp monotonicity, rates, header-vs-bag-time

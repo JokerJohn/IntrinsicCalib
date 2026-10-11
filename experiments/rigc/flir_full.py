@@ -9,18 +9,17 @@ method: the raw Kalibr tag corners of the test session.
 
 Methods (K = raw Kalibr corners, R = refined corners of the proposed extractor)
   kalibr        Kalibr's published pinhole-radtan calibration of the session
-  M2-K          OpenCV k1 k2 p1 p2 (= Kalibr's model), every Kalibr frame
-  M3-K          + k3
-  M2-K-3sigma   M2-K with Kalibr-style per-corner 3-sigma rejection
-  RAP-K         Stage 2 + order selection on raw Kalibr corners (no Stage 1)
+  M3-K          OpenCV k1 k2 p1 p2 k3 on every Kalibr frame, no selection
+                (cross-session repeatability of M3 without image selection)
   M2-R          proposed extractor, every frame (Stage 1 rejects included
                 through their raw corners), no selection: the ablation
   RAP           the proposed pipeline: Stage 1 (corner acceptance, >= 4
                 complete tags), Stage 2 inside each order, order selected on
                 the 1-in-5 held-out split, final refit on all accepted frames
 
-Writes flir_full_<cam>.json (parameters, per-view errors) and one intrinsics
-yaml per (cam, session, method) under intrinsics/ for the SLAM experiments.
+Writes flir_full_<cam>.json (parameters, per-view errors, cross-session
+repeatability) and the intrinsics yaml of the sets kalibr, M2-R and RAP per
+(cam, session) under intrinsics/, the input of the VIO experiment.
 """
 from __future__ import annotations
 
@@ -39,8 +38,8 @@ from rosbags.highlevel import AnyReader
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.environ.get("CALIB_TOOL_DIR", os.path.join(_HERE, "..", "..", "tool")))
-from fast_calib_offline_gui.aprilgrid_refine import detect_aprilgrid_rap   # noqa: E402
-from fast_calib_offline_gui.kalibr_extractor import detect_aprilgrid_kalibr  # noqa: E402
+from intrinsic_calib.aprilgrid_refine import detect_aprilgrid_rap   # noqa: E402
+from intrinsic_calib.kalibr_extractor import detect_aprilgrid_kalibr  # noqa: E402
 
 print = functools.partial(print, flush=True)
 cv2.setNumThreads(1)
@@ -180,29 +179,6 @@ def rap(uvs, objs):
     return K, Dd, dict(order="M3" if use_m3 else "M2", val=val, kept=kept, n=n, nV=len(V))
 
 
-def three_sigma(uvs, objs):
-    uvs, objs = list(uvs), list(objs)
-    for _ in range(5):
-        K, Dd, per = fit(uvs, objs, True)
-        res = []
-        for u, o in zip(uvs, objs):
-            ok, rv, tv = cv2.solvePnP(o, u, K, Dd)
-            p, _ = cv2.projectPoints(o, rv, tv, K, Dd)
-            res.append(p.reshape(-1, 2) - u)
-        s = np.vstack(res).std(0)
-        n_before = sum(len(u) for u in uvs)
-        nu, no = [], []
-        for u, o, r in zip(uvs, objs, res):
-            m = (np.abs(r) <= 3 * s).all(1)
-            if m.sum() >= 8:
-                nu.append(u[m]); no.append(o[m])
-        uvs, objs = nu, no
-        if sum(len(u) for u in uvs) == n_before:
-            break
-    K, Dd, _ = fit(uvs, objs, True)
-    return K, Dd
-
-
 # ----------------------------------------------------------------- driver
 def write_yaml(path, K, Dd, note):
     d = dict(cam_model="Pinhole", cam_width=SIZE[0], cam_height=SIZE[1], scale=1.0,
@@ -212,6 +188,9 @@ def write_yaml(path, K, Dd, note):
              intrinsics=[float(K[0, 0]), float(K[1, 1]), float(K[0, 2]), float(K[1, 2])],
              distortion_coeffs=[float(x) for x in Dd], distortion_model="radtan", note=note)
     yaml.safe_dump(d, open(path, "w"), sort_keys=False)
+
+
+VIO_SETS = ("kalibr", "M2-R", "RAP")   # intrinsics sets of the VIO experiment (Table III)
 
 
 def main():
@@ -235,10 +214,7 @@ def main():
         uvA, objA = sets(acc, "R")
         P, info = {}, {}
         P["kalibr"] = kalibr_published(train, cam)
-        K, Dd, _ = fit(uvK, objK, True); P["M2-K"] = (K, Dd)
         K, Dd, _ = fit(uvK, objK, False); P["M3-K"] = (K, Dd)
-        P["M2-K-3sigma"] = three_sigma(uvK, objK)
-        K, Dd, i = rap(uvK, objK); P["RAP-K"] = (K, Dd); info["RAP-K"] = i
         K, Dd, _ = fit(uvR, objR, True); P["M2-R"] = (K, Dd)
         if len(acc) >= max(NSTOP, len(tr) // 2):
             K, Dd, i = rap(uvA, objA)
@@ -277,8 +253,9 @@ def main():
                   f"k1 {D_[0]:+.4f} k2 {D_[1]:+.4f} k3 {D_[4]:+.4f} | mean {rows[k]['mean']:.3f} "
                   f"median {rows[k]['median']:.3f} | clean {rows[k]['mean_clean']:.3f}/"
                   f"{rows[k]['median_clean']:.3f} {tag}")
-            write_yaml(os.path.join(OUT, "intrinsics", f"{cam}_{train}_{k}.yaml"), K_, D_,
-                       f"{cam}, estimated on session {train}, method {k}")
+            if k in VIO_SETS:
+                write_yaml(os.path.join(OUT, "intrinsics", f"{cam}_{train}_{k}.yaml"), K_, D_,
+                           f"{cam}, estimated on session {train}, method {k}")
         report[key] = dict(rows=rows, gross=int(gross.sum()), n_test=len(te), n_train=len(tr))
     # cross-session parameter repeatability
     rep = {}

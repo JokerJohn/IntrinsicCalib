@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Rig-D (Rig-A camera) intrinsics comparison with OpenVINS mono (deterministic serial reader).
   run_rigd.py run  [--sets ...]     rectify -> config -> OpenVINS -> delete the rectified bag (resumable)
-  run_rigd.py eval [--sets ...]     evaluate every run against the reference set, write rigd_results_gt.{json,md}
-  --ref-set gt (default)           ground truth, see ../refs.py; the runs are scored on copies in runs_gt/ (runs/ is not touched)
-  --ref-set lio                    earlier FAST-LIVO2 reference ../ref/rigd_office1_lio.tum, scored in place -> rigd_results.{json,md}
+  run_rigd.py eval [--sets ...]     evaluate every run against the ground truth (../refs.py), write rigd_results_gt.{json,md};
+                                   the runs are scored on copies in runs_gt/ (runs/ is not touched)
   --rescore-only                   same as the stage 'eval' (re-scores the existing trajectories, no VIO run)
 Per set: rect/<set>_rect.bag (scripts/make_rect_bag_rigd.py, full distortion model of the set, mono8, 960x540),
 configs/<set>/openvins (scripts/make_vio_config_rigd.py, fx fy cx cy of the set scaled by 0.5, zero distortion),
@@ -13,25 +12,22 @@ import argparse, json, os, shutil, subprocess, sys, numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, f'{HERE}/..')
 import refs
 SEQ = 'rigd_office1'
-RAW = f'{HERE}/bags/rigd_office1_raw.bag'; REF = refs.ref_path('lio', SEQ)   # REF: lio reference; use ref_for(ref_set)
-TD = 0.005   # camera-IMU time shift (t_imu = t_cam + TD), scripts/td_yaw_fit.py, fixed for every set
-SETS = ['ROS-calib', 'mrcal', 'Kalibr', 'ours-M2', 'ours', 'Kalibr-run2']
-LABEL = {'ROS-calib': 'ROS-calib', 'mrcal': 'mrcal', 'Kalibr': 'Kalibr', 'ours-M2': 'ours-M2', 'ours': 'ours (Full)', 'Kalibr-run2': 'Kalibr (repeat run)'}
+RAW = f'{HERE}/bags/rigd_office1_raw.bag'   # mono8 image + IMU bag written by scripts/split_bag.py
+TD = 0.005   # camera-IMU time shift (t_imu = t_cam + TD), fixed for every set
+SETS = ['ROS-calib', 'mrcal', 'Kalibr', 'ours-M2', 'ours']
+LABEL = {'ROS-calib': 'ROS-calib', 'mrcal': 'mrcal', 'Kalibr': 'Kalibr', 'ours-M2': 'ours-M2', 'ours': 'ours (Full)'}
 def sh(cmd, log=None):
     p = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     if log: open(log, 'a').write(p.stdout)
     return p.returncode, p.stdout
 def ref_for(ref_set): return refs.ref_path(ref_set, SEQ)
 def score_run(tum, ref_set, name=None):
-    """Score one trajectory against `ref_set`; returns the result dict (evaluate.py json + traj_stats) or {'error': ...}.
-    lio: in place (<tum>_vs_lio.json, plot), as before; gt: on a copy runs_gt/<set>/<name>.tum."""
+    """Score one trajectory against `ref_set` on a copy runs_gt/<set>/<name>.tum; returns the result dict
+    (evaluate.py json + traj_stats) or {'error': ...}."""
     ref = ref_for(ref_set)
-    if ref_set == 'lio':
-        js = tum[:-4] + '_vs_lio.json'; est = tum; extra = f'--plot {tum[:-4]}_vs_lio.png'
-    else:
-        d = f'{HERE}/runs_{ref_set}/{os.path.basename(os.path.dirname(tum))}'; os.makedirs(d, exist_ok=True)
-        est = f'{d}/{os.path.basename(tum)}'; shutil.copyfile(tum, est); js = est[:-4] + f'_vs_{ref_set}.json'; extra = ''
-    rc, o = sh(f'timeout 600 {HERE}/../evaluate.py --ref {ref} --est {est} --json {js} {extra}')
+    d = f'{HERE}/runs_{ref_set}/{os.path.basename(os.path.dirname(tum))}'; os.makedirs(d, exist_ok=True)
+    est = f'{d}/{os.path.basename(tum)}'; shutil.copyfile(tum, est); js = est[:-4] + f'_vs_{ref_set}.json'
+    rc, o = sh(f'timeout 600 {HERE}/../evaluate.py --ref {ref} --est {est} --json {js}')
     if rc: return {'error': o[-300:]}
     r = json.load(open(js)); r.update(traj_stats(tum, ref)); return r
 def traj_stats(tum, ref):
@@ -54,7 +50,7 @@ def main():
     ap.add_argument('--keep_rect', action='store_true'); refs.add_args(ap); a = ap.parse_args()
     if a.rescore_only: a.stage = 'eval'
     if a.stage is None: ap.error('stage (run | eval) or --rescore-only required')
-    sfx = '' if a.ref_set == 'lio' else f'_{a.ref_set}'
+    sfx = f'_{a.ref_set}'
     for d in ('logs', 'rect', 'runs', 'configs'): os.makedirs(f'{HERE}/{d}', exist_ok=True)
     if a.stage == 'run':
         for st in a.sets:
@@ -81,14 +77,13 @@ def main():
         R['runs'][st] = res
     json.dump(R, open(f'{HERE}/rigd_results{sfx}.json', 'w'), indent=1)
     g = lambda r, k: r.get(k, {}).get('rmse', float('nan'))
-    L = ['# Rig-D (Rig-A camera model): OpenVINS mono + IMU on rigd_office1 (163 s, 126 m) vs ' + ('ground truth' if a.ref_set == 'gt' else 'FAST-LIVO2 LIO reference') + '', '',
+    L = ['# Rig-D (Rig-A camera model): OpenVINS mono + IMU on rigd_office1 (163 s, 126 m) vs ground truth', '',
          'ATE: SE(3) Umeyama alignment (no scale), translation RMSE. RPE: translation RMSE over all pairs 1 m / 5 m of travelled path. '
          'Images rectified with the full model of each set, 960x540, zero distortion in OpenVINS; extrinsics, time shift, IMU noise and estimator settings identical. '
          'tracked = output until the end of the robot motion, path ratio in [0.5, 2], max speed < 5 m/s.', '',
          '| intrinsics | ATE [m] | RPE@1m [m] | RPE@5m [m] | tracked |', '|---|---|---|---|---|']
     for st in a.sets:
         r = R['runs'][st]
-        if st == 'Kalibr-run2': L += ['', 'Kalibr repeat (second Kalibr run on the same 39 images, random view selection; not a row of the comparison):', '', '| intrinsics | ATE [m] | RPE@1m [m] | RPE@5m [m] | tracked |', '|---|---|---|---|---|']
         if 'ate_trans_m' not in r: L.append(f"| {r['label']} | - | - | - | no ({r.get('error','')[:40]}) |"); continue
         L.append(f"| {r['label']} | {g(r,'ate_trans_m'):.3f} | {g(r,'rpe_1m_trans_m'):.3f} | {g(r,'rpe_5m_trans_m'):.3f} | {'yes' if r['tracked_to_end'] else 'no'} (path {r['path_m']:.1f}/{r['ref_path_m']:.1f} m) |")
     open(f'{HERE}/rigd_results{sfx}.md', 'w').write('\n'.join(L) + '\n'); print('\n'.join(L))

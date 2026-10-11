@@ -8,11 +8,11 @@ import pytest
 
 from conftest import RIG_A
 import rap_headless as H
-from fast_calib_offline_gui.camera_intrinsics import BoardSpec
+from intrinsic_calib.camera_intrinsics import BoardSpec
 
 
 def _spec():
-    b = json.load(open(os.path.join(RIG_A, ".fastcalib_intrinsics.json")))["board"]
+    b = json.load(open(os.path.join(RIG_A, ".intrinsics_session.json")))["board"]
     return BoardSpec(pattern=b["pattern"], cols=b["cols"], rows=b["rows"],
                      square_mm=b["square_mm"], detector="auto", extractor="legacy")
 
