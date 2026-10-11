@@ -1,0 +1,21 @@
+<launch>
+  <!-- VINS-Fusion on the FLIR/Ouster dataset, headless. See run_vins.sh. -->
+  <arg name="config_path" />              <!-- <set>/vins/vins_mono_imu.yaml or vins_stereo_imu.yaml -->
+  <arg name="bag" />
+  <arg name="out_bag" />
+  <arg name="rate" default="1.0" />
+  <arg name="start" default="0.0" />
+  <arg name="duration" default="100000" />
+  <arg name="play_delay" default="3.0" />
+  <arg name="republish" default="true" />   <!-- false when the bag already holds raw /sensors/cam{0,1}/image_raw -->
+
+  <param name="/use_sim_time" value="true" />
+  <group if="$(arg republish)">
+    <node pkg="image_transport" type="republish" name="cam0_republish" output="log" args="compressed in:=/sensors/cam0 raw out:=/sensors/cam0/image_raw" />
+    <node pkg="image_transport" type="republish" name="cam1_republish" output="log" args="compressed in:=/sensors/cam1 raw out:=/sensors/cam1/image_raw" />
+  </group>
+  <node pkg="vins" type="vins_node" name="vins_estimator" output="screen" args="$(arg config_path)" />
+  <node pkg="rosbag" type="record" name="pose_record" output="log" args="-O $(arg out_bag) /vins_estimator/odometry /vins_estimator/imu_propagate" />
+  <node pkg="rosbag" type="play" name="bag_play" output="log" required="true"
+        args="--clock -d $(arg play_delay) -r $(arg rate) -s $(arg start) -u $(arg duration) $(arg bag)" />
+</launch>

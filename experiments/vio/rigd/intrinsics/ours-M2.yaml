@@ -1,0 +1,27 @@
+cam_model: Pinhole
+cam_width: 1920
+cam_height: 1080
+scale: 1.0
+cam_fx: 671.8387181021872
+cam_fy: 672.2992675505728
+cam_cx: 983.8213490361671
+cam_cy: 540.7337793232597
+cam_d0: -0.1180123573145248
+cam_d1: 0.009588030272085785
+cam_d2: -0.00021648824938262886
+cam_d3: 0.00013069868426022465
+cam_d4: 0.0
+intrinsics:
+- 671.8387181021872
+- 672.2992675505728
+- 983.8213490361671
+- 540.7337793232597
+distortion_coeffs:
+- -0.1180123573145248
+- 0.009588030272085785
+- -0.00021648824938262886
+- 0.00013069868426022465
+- 0.0
+distortion_model: radtan
+note: Rig-A, M2 (k3 fixed) calibrateCamera on all 39 detected images, no selection
+  (final_comparison.py ablation), rms 0.664 px

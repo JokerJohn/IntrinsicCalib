@@ -1,0 +1,27 @@
+cam_model: Pinhole
+cam_width: 1920
+cam_height: 1080
+scale: 1.0
+cam_fx: 663.7394277319378
+cam_fy: 663.9815859285311
+cam_cx: 983.6411920046112
+cam_cy: 541.09846231236
+cam_d0: -0.11710234903721434
+cam_d1: 0.009589750630388054
+cam_d2: -0.00025863346872257955
+cam_d3: -2.1712744500467503e-05
+cam_d4: 0.0
+intrinsics:
+- 663.7394277319378
+- 663.9815859285311
+- 983.6411920046112
+- 541.09846231236
+distortion_coeffs:
+- -0.11710234903721434
+- 0.009589750630388054
+- -0.00025863346872257955
+- -2.1712744500467503e-05
+- 0.0
+distortion_model: radtan
+note: Rig-A, real Kalibr kalibr_calibrate_cameras pinhole-radtan defaults, 39 images,
+  rigd/kalibr/run1/train-camchain.yaml

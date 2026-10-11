@@ -1,0 +1,21 @@
+<launch>
+  <!-- OpenVINS deterministic serial bag reader (no real-time playback, no message drops). Needs the raw-image
+       VIO bag from scripts/make_raw_bag.py. See run_openvins.sh (serial is the default mode there). -->
+  <arg name="config_path" />
+  <arg name="bag" />
+  <arg name="out_bag" />
+  <arg name="max_cameras" default="1" />
+  <arg name="use_stereo" default="false" />
+  <arg name="bag_start" default="0" />
+  <arg name="verbosity" default="INFO" />
+  <node pkg="rosbag" type="record" name="pose_record" output="log" args="-O $(arg out_bag) /ov_msckf/poseimu" />
+  <node name="ov_msckf" pkg="ov_msckf" type="ros1_serial_msckf" output="screen" clear_params="true" required="true" launch-prefix="bash -c 'sleep 2; $0 $@'">
+    <param name="path_bag"    type="str"    value="$(arg bag)" />
+    <param name="bag_start"   type="double" value="$(arg bag_start)" />
+    <param name="bag_durr"    type="int"    value="-1" />
+    <param name="verbosity"   type="str"    value="$(arg verbosity)" />
+    <param name="config_path" type="str"    value="$(arg config_path)" />
+    <param name="use_stereo"  type="bool"   value="$(arg use_stereo)" />
+    <param name="max_cameras" type="int"    value="$(arg max_cameras)" />
+  </node>
+</launch>

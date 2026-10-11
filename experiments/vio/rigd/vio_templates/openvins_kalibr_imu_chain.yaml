@@ -1,0 +1,37 @@
+%YAML:1.0
+
+# IMU chain for OpenVINS, Rig-D /imu_raw (accelerometer converted g -> m/s^2 in the rectified bag, gyro rad/s). No Allan data exist for this IMU. Gyro values = Rig-C template (5 x Allan of the FLIR IMU; 5 x the static-segment density of this gyro is 0.0106, i.e. the same); accelerometer values from the static segment (below). Identical for every intrinsics set.
+imu0:
+  T_i_b:
+    - [1.0, 0.0, 0.0, 0.0]
+    - [0.0, 1.0, 0.0, 0.0]
+    - [0.0, 0.0, 1.0, 0.0]
+    - [0.0, 0.0, 0.0, 1.0]
+  accelerometer_noise_density: 0.01   # Rig-D: 5 x the static-segment noise density of this IMU (0.0019 m/s^2/sqrt(Hz), first 8.5 s); the Rig-C value 0.093 made the IMU useless for scale (smoke test ATE 24 m)
+  accelerometer_random_walk: 0.002   # Rig-D (10 x lower, with the density)
+  gyroscope_noise_density: 0.00935   # Allan x5 (raw Allan densities over-trust the IMU: every visual update failed chi2, filter dead-reckoned)
+  gyroscope_random_walk: 0.00133   # Allan x5 (raw Allan densities over-trust the IMU: every visual update failed chi2, filter dead-reckoned)
+  rostopic: /imu_raw
+  time_offset: 0.0
+  update_rate: 200.0   # Rig-D /imu_raw ~197 Hz
+  model: "kalibr"
+  Tw:
+    - [1.0, 0.0, 0.0]
+    - [0.0, 1.0, 0.0]
+    - [0.0, 0.0, 1.0]
+  R_IMUtoGYRO:
+    - [1.0, 0.0, 0.0]
+    - [0.0, 1.0, 0.0]
+    - [0.0, 0.0, 1.0]
+  Ta:
+    - [1.0, 0.0, 0.0]
+    - [0.0, 1.0, 0.0]
+    - [0.0, 0.0, 1.0]
+  R_IMUtoACC:
+    - [1.0, 0.0, 0.0]
+    - [0.0, 1.0, 0.0]
+    - [0.0, 0.0, 1.0]
+  Tg:
+    - [0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0]
+    - [0.0, 0.0, 0.0]

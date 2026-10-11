@@ -1,0 +1,335 @@
+{
+ "board": {
+  "pattern": "chessboard",
+  "cols": 11,
+  "rows": 8,
+  "square_mm": 45.0,
+  "tag_spacing": 0.3,
+  "detector": 0
+ },
+ "model": "plumb_bob",
+ "fix_k3": true,
+ "images": [
+  {
+   "name": "left-0000.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0001.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0002.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0003.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0004.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0005.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0006.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0007.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0008.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0009.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0010.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0011.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0012.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0013.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0014.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0015.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0016.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0017.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0018.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0019.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0020.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0021.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0022.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0023.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0024.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0025.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0026.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0027.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0028.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0029.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0030.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0031.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0032.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0033.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0034.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0035.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0036.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0037.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0038.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0039.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0040.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0041.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0042.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0043.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0044.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0045.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0046.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0047.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0048.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0049.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0050.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0051.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0052.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0053.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0054.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0055.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0056.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0057.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0058.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0059.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0060.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0061.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0062.png",
+   "checked": true,
+   "detected": false
+  },
+  {
+   "name": "left-0063.png",
+   "checked": true,
+   "detected": false
+  }
+ ],
+ "result": null
+}

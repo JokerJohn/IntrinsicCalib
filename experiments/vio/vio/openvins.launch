@@ -1,0 +1,26 @@
+<launch>
+  <!-- OpenVINS (ov_msckf) on the FLIR/Ouster dataset, headless. See run_openvins.sh. -->
+  <arg name="config_path" />              <!-- <set>/openvins/estimator_config.yaml (from make_vio_config.py) -->
+  <arg name="bag" />
+  <arg name="out_bag" />
+  <arg name="max_cameras" default="1" />
+  <arg name="use_stereo" default="false" />
+  <arg name="rate" default="1.0" />
+  <arg name="start" default="0.0" />
+  <arg name="duration" default="100000" />
+  <arg name="play_delay" default="3.0" />
+  <arg name="verbosity" default="INFO" />
+
+  <param name="/use_sim_time" value="true" />
+  <node pkg="image_transport" type="republish" name="cam0_republish" output="log" args="compressed in:=/sensors/cam0 raw out:=/sensors/cam0/image_raw" />
+  <node pkg="image_transport" type="republish" name="cam1_republish" output="log" args="compressed in:=/sensors/cam1 raw out:=/sensors/cam1/image_raw" />
+  <node name="ov_msckf" pkg="ov_msckf" type="run_subscribe_msckf" output="screen" clear_params="true">
+    <param name="verbosity"   type="string" value="$(arg verbosity)" />
+    <param name="config_path" type="string" value="$(arg config_path)" />
+    <param name="use_stereo"  type="bool"   value="$(arg use_stereo)" />
+    <param name="max_cameras" type="int"    value="$(arg max_cameras)" />
+  </node>
+  <node pkg="rosbag" type="record" name="pose_record" output="log" args="-O $(arg out_bag) /ov_msckf/poseimu /ov_msckf/odomimu" />
+  <node pkg="rosbag" type="play" name="bag_play" output="log" required="true"
+        args="--clock -d $(arg play_delay) -r $(arg rate) -s $(arg start) -u $(arg duration) $(arg bag)" />
+</launch>

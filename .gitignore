@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# shared library built on first use by tool/fast_calib_offline_gui/kalibr_extractor
+*.so
+*.so.tmp
+
+# figure outputs
+figures/out/
+
+# public sessions fetched by experiments/public/fetch_datasets.sh, and outputs
+experiments/public/opencalib_front/
+experiments/public/ros_wide_left/
+experiments/public/ros_wide_right/
+experiments/public/opencv_left/
+experiments/public/opencv_right/
+experiments/public/mrcal_samyang_*/
+experiments/public/optional_mrcal_samyang_fisheye/
+experiments/public/experiment/out/
+experiments/public/extra/kalibr_baseline/runs*/
+experiments/public/extra/kalibr_baseline/logs/
+experiments/public/extra/kalibr_baseline/*_folds_raw.json
+experiments/public/extra/kalibr_baseline/sanity_check.json
+
+# Rig-C: frame caches and per-run outputs of flir_full.py (shipped copies in figures/data/)
+experiments/rigc/frames_*.npz
+experiments/rigc/cam0_frames*.npz
+experiments/rigc/flir_full_cam*.json
+
+# VIO: generated configurations, bags and runs
+experiments/vio/results/*
+!experiments/vio/results/trajectories/
+!experiments/vio/results/table3.json
+experiments/vio/rigd/bags/
+experiments/vio/rigd/rect/
+experiments/vio/rigd/runs/
+experiments/vio/rigd/configs/
+experiments/vio/rigd/logs/
+experiments/vio/rigd/results/
+experiments/vio/rigd/ref_check/
+experiments/vio/rigd/kalibr/
+experiments/vio/rigd/rigd_results*
+experiments/vio/rigd/rigd_variants*
+*.refinterp.tum
+
+# bags (hosted separately, data/rigc/MANIFEST.md)
+*.bag
+data/rigc/flir_eval_rawbags/
+

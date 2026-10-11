@@ -1,0 +1,19 @@
+<launch>
+  <!-- FAST-LIVO2 LIO-only on the Rig-D bag (no image topic). Same structure as ../flir.launch minus the image republish. -->
+  <arg name="config" />
+  <arg name="camera_yaml" />
+  <arg name="bag" />
+  <arg name="out_bag" />
+  <arg name="seq_name" default="rigd_run" />
+  <arg name="rate" default="0.5" />
+  <arg name="play_delay" default="3.0" />
+  <param name="/use_sim_time" value="true" />
+  <rosparam command="load" file="$(arg config)" />
+  <param name="evo/seq_name" value="$(arg seq_name)" />
+  <node pkg="fast_livo" type="fastlivo_mapping" name="laserMapping" output="screen">
+    <rosparam file="$(arg camera_yaml)" />
+  </node>
+  <node pkg="rosbag" type="record" name="odom_record" output="log" args="-O $(arg out_bag) /aft_mapped_to_init" />
+  <node pkg="rosbag" type="play" name="bag_play" output="log" required="true"
+        args="--clock -d $(arg play_delay) -r $(arg rate) $(arg bag)" />
+</launch>

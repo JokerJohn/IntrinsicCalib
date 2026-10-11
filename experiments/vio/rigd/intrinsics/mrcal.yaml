@@ -1,0 +1,33 @@
+cam_model: Pinhole
+cam_width: 1920
+cam_height: 1080
+scale: 1.0
+cam_fx: 659.4433892
+cam_fy: 659.9430838
+cam_cx: 983.8681471
+cam_cy: 540.4823957
+cam_d0: 0.1805613856
+cam_d1: 0.2516513685
+cam_d2: -0.000449602594
+cam_d3: -9.624149474e-05
+cam_d4: 0.000846037702
+intrinsics:
+- 659.4433892
+- 659.9430838
+- 983.8681471
+- 540.4823957
+distortion_coeffs:
+- 0.1805613856
+- 0.2516513685
+- -0.000449602594
+- -9.624149474e-05
+- 0.000846037702
+- 0.2697836816
+- 0.3004574285
+- 0.02434670619
+distortion_model: 'radtan8 (OpenCV rational: k1 k2 p1 p2 k3 k4 k5 k6)'
+note: Rig-A, mrcal LENSMODEL_OPENCV8 defaults (outlier rejection on, 135/3432 corners
+  cut), 39 images, experiments/public/experiment/out/fs39_mrcal.json
+cam_d5: 0.2697836816
+cam_d6: 0.3004574285
+cam_d7: 0.02434670619

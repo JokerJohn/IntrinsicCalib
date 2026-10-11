@@ -1,0 +1,27 @@
+cam_model: Pinhole
+cam_width: 1920
+cam_height: 1080
+scale: 1.0
+cam_fx: 669.82132
+cam_fy: 670.36529
+cam_cx: 983.02044
+cam_cy: 541.16968
+cam_d0: -0.118285
+cam_d1: 0.00962
+cam_d2: -0.000336
+cam_d3: -6.7e-05
+cam_d4: 0.0
+intrinsics:
+- 669.82132
+- 670.36529
+- 983.02044
+- 541.16968
+distortion_coeffs:
+- -0.118285
+- 0.00962
+- -0.000336
+- -6.7e-05
+- 0.0
+distortion_model: radtan
+note: Rig-A, data/rig_a/ost.yaml (ROS
+  camera_calibration, plumb_bob, k3=0), 39 images
