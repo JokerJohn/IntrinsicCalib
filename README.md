@@ -4,6 +4,8 @@
 
 <p><a href="https://github.com/JokerJohn"><b>Xiangcheng Hu</b></a></p>
 
+<p><a href="README.md"><b>English</b></a> | <a href="README.zh.md">中文</a></p>
+
 ![IntrinsicCalib](./README/hero.png)
 
 <a href="https://arxiv.org/abs/2609.10082"><img src="https://img.shields.io/badge/arXiv-2609.10082-b31b1b" alt="arXiv"></a><a><img src="https://img.shields.io/badge/IEEE%20RA--P-Accepted-green" alt="RA-P"></a><a href="./README/intrinsic_calib_video.mp4"><img src="https://img.shields.io/badge/Video-Paper%20Video-blue" alt="Video"></a><a><img alt="PRs-Welcome" src="https://img.shields.io/badge/PRs-Welcome-white" /></a>[![GitHub Stars](https://img.shields.io/github/stars/JokerJohn/IntrinsicCalib.svg)](https://github.com/JokerJohn/IntrinsicCalib/stargazers)<a href="https://github.com/JokerJohn/IntrinsicCalib/network/members"><img alt="FORK" src="https://img.shields.io/github/forks/JokerJohn/IntrinsicCalib?color=white" /></a>[![GitHub Issues](https://img.shields.io/github/issues/JokerJohn/IntrinsicCalib.svg)](https://github.com/JokerJohn/IntrinsicCalib/issues)[![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
@@ -83,7 +85,7 @@ All hyper-parameters are fixed across every dataset: $\kappa=2$, $\alpha=\beta=1
 | `Rig-D` | wheeled robot, Rig-A camera model | chessboard 11 x 8, 45 mm | one 163 s sequence |
 | `Public` | OpenCalib, ROS, OpenCV | chessboard | five sessions |
 
-<img src="./README/datasets.png" width="60%">
+<img src="./README/datasets.png" width="85%">
 
 </div>
 
