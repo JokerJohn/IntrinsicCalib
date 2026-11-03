@@ -8,9 +8,6 @@ matplotlib==3.10.9
 scipy==1.15.3
 # tests
 pytest
-# Optional: only the LiDAR feature functions of feature_detector.py use open3d
-# (not needed for intrinsic calibration or for any experiment of the paper).
-# open3d==0.19.0
 #
 # kalibr_extractor/ compiles a small shared library on first use:
 #   g++, pkg-config, libopencv-dev (opencv4), libeigen3-dev

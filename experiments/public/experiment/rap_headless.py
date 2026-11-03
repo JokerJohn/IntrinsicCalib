@@ -1,19 +1,16 @@
 #!/usr/bin/env python3
-"""Headless RAP run: the orchestration of IntrinsicsDialog._calibrate, lifted
-out of the Qt dialog so it can be scripted, calling the project's own
-detect_corners_ex() and calibrate() unmodified.
+"""Headless run of the pipeline: the orchestration of the Calibrate action of
+the tool, without Qt, calling detect_corners_ex() and calibrate() unmodified.
 
-Ported line-for-line from camera_intrinsics.py::_calibrate (2026-07-28 state):
-
-  Stage 1  SB-precision subset      used = sb  if len(sb) >= max(8, len(used)//2)
+  Stage 1  complete detection       used = sb  if len(sb) >= max(8, len(used)//2)
   split    C / V                    V = used[::5]  when len(used) >= 15
-  Stage 2  iterative robust reject  drop mean > 2.0 x median, <=3 rounds, floor 8
-  order    fix-k3 vs free-k3        pose-only (solvePnP) on V,
-                                    adopt free iff mean <= 1.0x and max <= 1.0x
-  final    retrain winner on all retained frames, Stage 2 applied again
+  Stage 2  iterative rejection      drop mean > 2.0 x median, <=3 rounds, floor 8
+  order    M2 (fix k3) / M3 (free)  pose-only (solvePnP) on V,
+                                    adopt M3 iff mean <= 1.0x and max <= 1.0x
+  final    selected order on all accepted images, Stage 2 applied again
 
-Writes a JSON result plus a corner cache so the comparison can score any
-parameter set on identical observations.
+Writes a JSON result and, optionally, a corner cache, so that a comparison can
+score any parameter set on identical observations.
 """
 from __future__ import annotations
 

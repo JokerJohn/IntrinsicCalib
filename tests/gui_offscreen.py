@@ -6,7 +6,9 @@ Calibrate actions as a user would, and prints the number of detected images
 and the selection result.  Requires PySide6 (requirements.txt).
 """
 import os
+import shutil
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -17,7 +19,11 @@ sys.path.insert(0, os.environ.get('CALIB_TOOL_DIR', os.path.join(HERE, '..', 'to
 from PySide6.QtWidgets import QApplication  # noqa: E402
 from intrinsic_calib.camera_intrinsics import IntrinsicsDialog  # noqa: E402
 
-DATA = Path(os.environ.get('RIG_A_DIR', os.path.join(HERE, '..', 'data', 'rig_a'))).resolve()
+SRC = Path(os.environ.get('RIG_A_DIR', os.path.join(HERE, '..', 'data', 'rig_a'))).resolve()
+# The window rewrites the session file of its folder, so it works on a copy.
+WORK = tempfile.TemporaryDirectory()
+DATA = Path(WORK.name) / SRC.name
+shutil.copytree(SRC, DATA)
 
 app = QApplication(sys.argv)
 dlg = IntrinsicsDialog(current_dataset_dir=str(DATA.parent))

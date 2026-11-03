@@ -1,137 +1,169 @@
-# Automatic Reproducible Camera Intrinsic Calibration
+<div align="center">
 
-This repository accompanies the submission "Automatic Reproducible Camera Intrinsic Calibration". It contains the calibration tool, the data of every experiment (Rig-A, Rig-B and the Rig-C calibration files; the manifest of the Rig-C and Rig-D bags, which are hosted separately; the fetch script of the five public sessions), the experiment scripts that produce the numbers of the paper, the OpenVINS configurations of Table III, and tests that reproduce the selection on Rig-A.
+<h1>Automatic Reproducible Camera Intrinsic Calibration</h1>
 
-The method determines both the image set and the radial distortion order from the collected data. **Stage 1** admits an image only if the corner extractor recovers the complete inner-corner grid (AprilGrid: enough complete tags whose saddle-point refinement converges). **Stage 2** iteratively rejects the images whose mean residual exceeds $\kappa$ times the median of the retained set and re-solves the calibration. **Order selection** splits the accepted set into an estimation subset $\mathcal{C}$ and a validation subset $\mathcal{V}$ (every fifth image in capture order), estimates each candidate (M2: $k_1, k_2, p_1, p_2$; M3: additionally $k_3$) on $\mathcal{C}$ with Stage 2 applied internally, re-estimates only the board pose on each validation image, and adopts M3 if and only if it degrades neither the mean nor the worst-case validation error. All hyper-parameters are fixed across every dataset: $\kappa=2$, $\alpha=\beta=1$, $N_{\min}=15$, $N_{\mathrm{stop}}=8$, $T_{\max}=3$.
+<p><a href="https://github.com/JokerJohn"><b>Xiangcheng Hu</b></a></p>
 
-## Installation
+![IntrinsicCalib](./README/hero.png)
 
-The implementation is in Python 3.10 and has been tested on Ubuntu 20.04.
+<a href="https://arxiv.org/abs/2609.10082"><img src="https://img.shields.io/badge/arXiv-2609.10082-b31b1b" alt="arXiv"></a><a><img src="https://img.shields.io/badge/IEEE%20RA--P-Accepted-green" alt="RA-P"></a><a href="./README/intrinsic_calib_video.mp4"><img src="https://img.shields.io/badge/Video-Paper%20Video-blue" alt="Video"></a><a><img alt="PRs-Welcome" src="https://img.shields.io/badge/PRs-Welcome-white" /></a>[![GitHub Stars](https://img.shields.io/github/stars/JokerJohn/IntrinsicCalib.svg)](https://github.com/JokerJohn/IntrinsicCalib/stargazers)<a href="https://github.com/JokerJohn/IntrinsicCalib/network/members"><img alt="FORK" src="https://img.shields.io/github/forks/JokerJohn/IntrinsicCalib?color=white" /></a>[![GitHub Issues](https://img.shields.io/github/issues/JokerJohn/IntrinsicCalib.svg)](https://github.com/JokerJohn/IntrinsicCalib/issues)[![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+
+</div>
+
+## Introduction
+
+Accurate camera intrinsic calibration depends on the quality of the collected images, yet existing target-based methods often require the practitioner to select high-quality images and to specify the radial distortion order manually. This work determines both from the collected data.
+
+**Key insight: the two decisions are coupled through the residual.** A higher-order model lowers the residual scale that defines the rejection threshold, and the calibration-set residual cannot validate the added coefficient. Image rejection therefore runs under each candidate order, and the order is selected on held-out images with the intrinsics and distortion fixed.
+
+- **Intrinsic calibration method.** An automatic and operator-free method iteratively selects high-quality images and the distortion order, yielding accurate and reproducible intrinsics.
+- **Distortion-order selection.** A criterion evaluates each candidate on held-out images with the intrinsics and distortion fixed, avoiding the use of calibration-set residuals to assess model adequacy.
+- **Interactive calibration tool.** An open-source tool for chessboard and AprilGrid targets, validated on public datasets and real-world robots.
+
+| ![pipeline](./README/pipeline.png) | ![algorithm](./README/algorithm.png) |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+
+## News
+
+- **2026/11**: The paper has been accepted by IEEE Robotics and Automation Practice (RA-P).
+- **2026/10/11**: The calibration tool, data and experiment scripts are released.
+- **2026/09/09**: The paper is available on [arXiv](https://arxiv.org/abs/2609.10082).
+
+## Video
+
+<div align="center">
+
+<a href="./README/intrinsic_calib_video.mp4"><img src="./README/intrinsic_calib_video.gif" width="92%"></a>
+
+</div>
+
+Click the image to play the full video (92 s).
+
+## Method
+
+**Image selection.** Stage 1 admits an image only if the extractor recovers the complete inner-corner grid. Stage 2 iteratively rejects the images whose mean residual exceeds a multiple of the median and re-solves the calibration:
+
+<div align="center">
+
+$$
+\tau^{(t)} = \kappa\,\tilde{e}^{(t)}, \qquad
+\mathcal{I}^{(t+1)} = \lbrace\, i\in\mathcal{I}^{(t)} \mid \bar{e}_i^{(t)} \le \tau^{(t)} \,\rbrace
+$$
+
+</div>
+
+**Distortion-order selection.** The accepted set is split into an estimation subset and a validation subset $\mathcal{V}$. Each candidate is estimated with Stage 2 applied internally, and only the board pose is re-estimated on $\mathcal{V}$. $\mathrm{M}_3$ (adds $k_3$ to $\mathrm{M}_2$) is adopted if and only if it degrades neither the mean nor the worst-view error:
+
+<div align="center">
+
+$$
+\bar{e}_{\mathrm{v}}(\mathrm{M}_3) \le \alpha\,\bar{e}_{\mathrm{v}}(\mathrm{M}_2)
+\quad\text{and}\quad
+e^{\max}_{\mathrm{v}}(\mathrm{M}_3) \le \beta\,e^{\max}_{\mathrm{v}}(\mathrm{M}_2)
+$$
+
+</div>
+
+All hyper-parameters are fixed across every dataset: $\kappa=2$, $\alpha=\beta=1$, $N_{\min}=15$, $N_{\mathrm{stop}}=8$, $T_{\max}=3$.
+
+**Interactive tool.** The tool displays the filtering status of every image and the distribution of calibration points, and records every decision. Left: a chessboard session (Rig-A, played at 3x). Right: an AprilGrid session (Rig-C).
+
+| <img src="./README/gif_tool_chessboard.gif"> | <img src="./README/gif_tool_aprilgrid.gif"> |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+
+## Datasets
+
+<div align="center">
+
+| Dataset | Camera | Target | Data |
+| ------- | ------ | ------ | ---- |
+| `Rig-A` | 1920 x 1080, 111° | chessboard 11 x 8, 45 mm | 39 images |
+| `Rig-B` | second camera of the same model | chessboard 11 x 8, 45 mm | 64 images |
+| `Rig-C` | handheld stereo FLIR, 1440 x 1080, 113° | 3 x 3 AprilGrid | sessions D1, D2; sequences S1, S2, S3 |
+| `Rig-D` | wheeled robot, Rig-A camera model | chessboard 11 x 8, 45 mm | one 163 s sequence |
+| `Public` | OpenCalib, ROS, OpenCV | chessboard | five sessions |
+
+<img src="./README/datasets.png" width="60%">
+
+</div>
+
+Rig-A and Rig-B ship in `data/`. The Rig-C and Rig-D bags are available from [Baidu Netdisk](https://pan.baidu.com/s/1n3tDlzshlr6OiQmL6GJtyQ?pwd=vihg) (code `vihg`), and the public sessions are fetched from their original sources. [docs/DATA.md](./docs/DATA.md) lists the data of every experiment.
+
+## Results
+
+**Image and order selection.** On Rig-A, the two stages reduce the held-out error from 0.419 to 0.316 px (25%). $\mathrm{M}_3$ further reduces the held-out mean to 0.299 px and the worst view from 0.590 to 0.554 px.
+
+| ![selection](./README/selection.png) | ![order](./README/order.png) |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+
+**Cross-session consistency.** On Rig-C, the method reduces the cross-session error of Kalibr by 36 to 50% on both cameras. The focal length varies by less than 1.5 px between the days, against about 7 px for Kalibr.
+
+| <img src="./README/gif_xsession.gif"> | ![tab_rigc](./README/tab_rigc.png) |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+
+**Public sessions and odometry.** The pipeline achieves the lowest held-out mean on all five public sessions. With OpenVINS, the intrinsics yield the lowest trajectory error on all three Rig-C sequences and the lowest median error on Rig-D.
+
+| ![tab_public](./README/tab_public.png) | ![tab_vio](./README/tab_vio.png) |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+
+## Getting Started
+
+The implementation uses Python 3.10, OpenCV 4.13 and PySide6, and has been tested on Ubuntu 20.04.
 
 ```bash
+git clone https://github.com/JokerJohn/IntrinsicCalib.git && cd IntrinsicCalib
 conda create -n intrinsic_calib python=3.10 && conda activate intrinsic_calib
 pip install -r requirements.txt
-# Kalibr AprilGrid and checkerboard extractors (compiled on first use)
-sudo apt install g++ pkg-config libopencv-dev libeigen3-dev
+sudo apt install g++ pkg-config libopencv-dev libeigen3-dev   # Kalibr extractors, compiled on first use
+
+python tool/run_intrinsics_gui.py data/rig_a                  # interactive tool: Detect All, then Calibrate
+python experiments/public/experiment/rap_headless.py data/rig_a --out rig_a.json   # headless
 ```
 
-The following components are required only by the experiments that name them:
-
-| component | used by |
-|---|---|
-| ROS Noetic with `camera_calibration` (`/usr/bin/python3`) | ROS-calib baseline (Table I, consistency checks) |
-| mrcal (`sudo apt install mrcal`) | mrcal baseline (Table I, Rig-D intrinsics) |
-| evo (`evo_ape`, `evo_rpe`) | Table III |
-| ROS Noetic and OpenVINS | rerunning the VIO experiments ([experiments/vio/README.md](experiments/vio/README.md)) |
-| Docker image of Kalibr (`kalibr:noetic`) | Kalibr on Rig-A for the Rig-D intrinsics (`experiments/vio/rigd/scripts/run_kalibr_all39.py`) |
-
-Every script resolves the tool and the data relative to the repository. The following environment variables override the defaults:
-
-| variable | meaning | default |
-|---|---|---|
-| `CALIB_TOOL_DIR` | directory that contains `intrinsic_calib/` | `tool/` |
-| `RIG_A_DIR`, `RIG_B_DIR` | Rig-A and Rig-B image folders | `data/rig_a`, `data/rig_b` |
-| `RIGC_DIR` | directory of the Rig-C and Rig-D bags ([data/rigc/MANIFEST.md](data/rigc/MANIFEST.md)) | `data/rigc` |
-| `VIO_WS` | catkin workspace of OpenVINS | required by the VIO scripts |
-| `EVO_BIN` | directory of `evo_ape` and `evo_rpe` | `~/.local/bin` |
-| `KALIBR_IMAGE` | Docker image that runs `kalibr_calibrate_cameras` | `kalibr:noetic` |
-
-## Usage
-
-**Interactive tool.**
-
-```bash
-python tool/run_intrinsics_gui.py data/rig_a
-```
-
-`data/rig_a/.intrinsics_session.json` holds the board specification (11 x 8 inner corners, 45 mm). `Detect All` runs the corner extraction and `Calibrate` runs the two selection stages and the order selection. The tool records the images retained and rejected at each stage with their residuals, the subsets $\mathcal{C}$ and $\mathcal{V}$, the four quantities of the order criterion, the selected order and the corner-zone counts. `GUI YAML` and `ROS ost.yaml` export the parameters. `experiments/public/make_gui_session.py <folder> --cols C --rows R --square-mm S` writes the session file for any other folder of chessboard images.
-
-**Headless.** `rap_headless.py` executes the orchestration of the `Calibrate` action without Qt:
-
-```bash
-python experiments/public/experiment/rap_headless.py data/rig_a --out rig_a.json
-# RAP  data/rig_a: 39 detected -> stage1 27 -> final 20 | M3 (free k3) | in-sample mean corner 0.143 px
-```
-
-```python
-import sys
-sys.path[:0] = ["tool", "experiments/public/experiment"]
-from intrinsic_calib.camera_intrinsics import BoardSpec, result_to_ost_yaml
-from rap_headless import detect_all, run_rap
-
-spec = BoardSpec(pattern="chessboard", cols=11, rows=8, square_mm=45.0)
-entries, size = detect_all("data/rig_a", spec)     # corner extraction
-res = run_rap(entries, spec, size)                 # Stage 1, Stage 2, order selection, final fit
-print(res["trace"]["order"]["chosen"])             # M3 (free k3)
-ost = result_to_ost_yaml(res, "rig_a")             # ROS camera_info layout
-```
-
-`res["trace"]` lists the images rejected by Stage 1 and Stage 2, the validation subset and the validation errors of both orders. For an AprilGrid target, `BoardSpec(pattern="aprilgrid", cols=3, rows=3, square_mm=115.0, tag_spacing=0.3)` selects the Kalibr tag decoder with saddle-point refinement.
-
-## Reproducing the paper
-
-All commands are run with `OMP_NUM_THREADS=1`; the pipeline draws no random numbers, so a rerun returns the same parameters.
-
-| item | command | expected output |
-|---|---|---|
-| Rig-A selection and order (Sections V-B, V-C) | `python experiments/public/experiment/rap_headless.py data/rig_a --out rig_a.json` | Stage 1 rejects 12 of 39, Stage 2 rejects 7, M3 selected (validation mean 0.316 to 0.299 px, maximum 0.590 to 0.554 px), 0.143 px on the retained images |
-| Table I | `cd experiments/public && ./fetch_datasets.sh && ./write_sessions.sh && cd experiment && python final_comparison.py ../opencalib_front ../ros_wide_left ../ros_wide_right ../opencv_left ../opencv_right --every 4 --json-out out/final_table.json` | column `cell` of the printout; the rows `mrcal OPENCV4/5` give the order comparison of Section V-D ([experiments/public/README.md](experiments/public/README.md)) |
-| Table II and cross-session repeatability | `cd experiments/rigc && python flir_full.py cam0 && python flir_full.py cam1 && python ablation_rigc.py` | the printed table and the parameter differences between sessions ([experiments/rigc/README.md](experiments/rigc/README.md)); uses the shipped corner caches, no bags required |
-| Table III | `cd experiments/vio && python make_table3.py` | the printed table, scored from the shipped OpenVINS trajectories against the ground truth ([experiments/vio/README.md](experiments/vio/README.md)) |
-| Table III, VIO runs | `experiments/vio/run_matrix_all.sh` (Rig-C); `experiments/vio/rigd/run_rigd.py`, `run_rigd_variants.py` (Rig-D) | the trajectories of `experiments/vio/results/trajectories/`; bags, ROS and OpenVINS required |
-| Consistency checks (Supplement) | `experiments/public/experiment/rig_ab_ros_check.py`; Rig-A runs of [experiments/public/README.md](experiments/public/README.md) | parameter differences to the ROS calibrator on Rig-A and Rig-B; calibration-set errors of the three toolboxes on Rig-A |
-
-## Data
-
-| directory | content |
-|---|---|
-| `data/rig_a/` | Rig-A: 39 images, 1920 x 1080, 11 x 8 inner corners, 45 mm squares, with the session file and the `ost.yaml` of the ROS calibrator |
-| `data/rig_b/` | Rig-B: 64 images of a second camera of the same model, with the session file and `ost.yaml` |
-| `data/rigc/kalibr_D1/`, `data/rigc/kalibr_D2/` | Kalibr input and output of the two Rig-C calibration sessions (camera chain, camera-IMU calibration) |
-| `data/rigc/frames/` | one Rig-C frame (session D2, cam0), used by the tests |
-| `data/rigc/MANIFEST.md` | file names, sizes, checksums, durations and topics of the Rig-C bags (two calibration sessions, three VIO sequences) and of the Rig-D bag |
-| `experiments/rigc/corners_*.json` | corner observations of all Rig-C calibration frames |
-| `experiments/rigc/intrinsics/` | Rig-C intrinsics of the sets Kalibr, ours-M2 and ours (Full), input of the VIO experiment |
-| `experiments/vio/rigd/intrinsics/` | Rig-D intrinsics of the five sets, input of the VIO experiment |
-| `experiments/vio/gt/` | ground truth of the VIO sequences: FAST-LIO2 with manual loop closures (Rig-C), PALoc prior-map localisation with manual loop closures (Rig-D) |
-| `experiments/vio/results/trajectories/` | OpenVINS trajectories of Table III |
-
-The five public sessions are fetched from their original sources by `experiments/public/fetch_datasets.sh`. The Rig-C bags (21 GB) and the Rig-D bag (11 GB) are hosted separately. [DATA.md](DATA.md) lists the data of every experiment with the download addresses; [data/rigc/MANIFEST.md](data/rigc/MANIFEST.md) gives sizes, checksums and topics of the bags.
-
-## Repository structure
+The headless run returns 39 detected, 27 after Stage 1, 20 final, $\mathrm{M}_3$ and 0.143 px on the retained images. [docs/REPRODUCE.md](./docs/REPRODUCE.md) describes the Python interface, the commands that reproduce every table of the paper and the tests.
 
 ```
-tool/                    calibration package intrinsic_calib and the launcher run_intrinsics_gui.py
-experiments/public/      Table I: fetch script of the public sessions, protocol, ROS-calib and mrcal baselines, headless pipeline
-experiments/rigc/        Table II: cross-session evaluation and IS/OS ablation on Rig-C
-experiments/vio/         Table III: OpenVINS configurations, run scripts, evo evaluation, ground truth, Rig-D
-data/                    Rig-A, Rig-B, Rig-C Kalibr files, manifest of the bags
-tests/                   tests of the Rig-A selection, the AprilGrid extraction and the tool
+tool/          calibration package intrinsic_calib and the launcher
+experiments/   public (Table I), rigc (Table II), vio (Table III)
+data/          Rig-A, Rig-B, Rig-C Kalibr files, manifest of the bags
+tests/         tests of the Rig-A selection, the AprilGrid extraction and the tool
 ```
 
-## Tests
+## TODO
 
-```bash
-OMP_NUM_THREADS=1 QT_QPA_PLATFORM=offscreen python -m pytest tests -q
-```
-
-`test_rig_a.py` calibrates `data/rig_a` with the default settings and checks the selected order (M3), the rejections of Stage 1 (12 of 39) and Stage 2 (7), the validation errors of both orders, the calibration-set mean corner error (0.143 px), and that two runs return identical intrinsics. `test_aprilgrid.py` extracts the AprilGrid corners of the shipped Rig-C frame and compares them with the corner cache of Table II. `test_gui.py` drives the tool offscreen (`tests/gui_offscreen.py`), detects and calibrates Rig-A, and checks the selection.
+- [x] Release the calibration tool and the experiment scripts
+- [x] Release the Rig-A to Rig-D data
+- [ ] Add rational and fisheye candidate models
+- [ ] Add coverage constraints
+- [ ] Support rolling-shutter and event cameras
 
 ## Citation
 
 ```bibtex
-@article{anonymous2026intrinsiccalib,
-  title  = {Automatic Reproducible Camera Intrinsic Calibration},
-  author = {Anonymous},
-  note   = {Under double-anonymous review},
-  year   = {2026}
+@article{hu2026intrinsiccalib,
+  title         = {Automatic Reproducible Camera Intrinsic Calibration},
+  author        = {Hu, Xiangcheng},
+  journal       = {IEEE Robotics and Automation Practice},
+  note          = {Accepted},
+  eprint        = {2609.10082},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.RO},
+  year          = {2026}
 }
 ```
 
+Related work: [P²Calib](https://github.com/JokerJohn/P2Calib) and [VeriCalib](https://github.com/JokerJohn/VeriCalib).
+
+## Acknowledgment
+
+The tool uses [OpenCV](https://github.com/opencv/opencv) and the `ethz_apriltag2` decoder of [Kalibr](https://github.com/ethz-asl/kalibr). The evaluation uses the data and baselines of [OpenCalib](https://github.com/PJLab-ADG/SensorsCalibration), [ROS camera_calibration](http://wiki.ros.org/camera_calibration), [mrcal](https://mrcal.secretsauce.net) and Kalibr. The odometry experiments and the ground truth use [OpenVINS](https://github.com/rpng/open_vins), [evo](https://github.com/MichaelGrupp/evo), [FAST-LIO2](https://github.com/hku-mars/FAST_LIO), [PALoc](https://github.com/JokerJohn/PALoc) and [Manual Loop Closure Tools](https://github.com/JokerJohn/Mannual-Loop-Closure-Tools).
+
 ## License
 
-Released under the [MIT license](./LICENSE). `tool/intrinsic_calib/kalibr_extractor/third_party/` contains the `ethz_apriltag2` sources and the target-extractor code of Kalibr (BSD, [KALIBR_LICENSE](tool/intrinsic_calib/kalibr_extractor/third_party/KALIBR_LICENSE)). The public sessions keep the licences of their sources ([experiments/public/README.md](experiments/public/README.md)).
+Released under the [MIT license](./LICENSE). `tool/intrinsic_calib/kalibr_extractor/third_party/` contains the `ethz_apriltag2` sources and the target-extractor code of Kalibr (BSD, [KALIBR_LICENSE](tool/intrinsic_calib/kalibr_extractor/third_party/KALIBR_LICENSE)). The public sessions keep the licences of their sources.
 
-## Acknowledgements
+## Contributors
 
-The tool uses [OpenCV](https://github.com/opencv/opencv) and the `ethz_apriltag2` decoder of [Kalibr](https://github.com/ethz-asl/kalibr). The evaluation uses the public data and baselines of [OpenCalib](https://github.com/PJLab-ADG/SensorsCalibration), [ROS camera_calibration](http://wiki.ros.org/camera_calibration), [OpenCV](https://github.com/opencv/opencv), [mrcal](https://mrcal.secretsauce.net) and [Kalibr](https://github.com/ethz-asl/kalibr), and [OpenVINS](https://github.com/rpng/open_vins), [evo](https://github.com/MichaelGrupp/evo), [FAST-LIO2](https://github.com/hku-mars/FAST_LIO) and PALoc (prior-assisted LiDAR localisation, cited in the paper) for the odometry experiments and the ground truth.
+<a href="https://github.com/JokerJohn/IntrinsicCalib/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=JokerJohn/IntrinsicCalib" />
+</a>
