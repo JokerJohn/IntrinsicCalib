@@ -93,14 +93,14 @@ Rig-A and Rig-B ship in `data/`. The Rig-C and Rig-D bags are available from [Ba
 
 ## Results
 
-**Image and order selection.** On Rig-A, the two stages reduce the held-out error from 0.419 to 0.316 px (25%). $\mathrm{M}_3$ further reduces the held-out mean to 0.299 px and the worst view from 0.590 to 0.554 px.
+**Image selection and cross-session consistency.** On Rig-A, the two stages reduce the held-out error from 0.419 to 0.316 px (25%). On Rig-C, the method reduces the cross-session error of Kalibr by 36 to 50% on both cameras, and the focal length varies by less than 1.5 px between the days, against about 7 px for Kalibr.
 
-| ![selection](./README/selection.png) | ![order](./README/order.png) |
+| ![selection](./README/selection.png) | ![tab_rigc](./README/tab_rigc.png) |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 
-**Cross-session consistency.** On Rig-C, the method reduces the cross-session error of Kalibr by 36 to 50% on both cameras. The focal length varies by less than 1.5 px between the days, against about 7 px for Kalibr.
+**Order selection and ablation.** On Rig-A, $\mathrm{M}_3$ further reduces the held-out mean to 0.299 px and the worst view from 0.590 to 0.554 px. On Rig-C, the baseline with all images and $\mathrm{M}_2$ (ours-$\mathrm{M}_2$) reaches a cross-session error of 0.513 to 1.025 px, against 0.197 to 0.244 px for the full pipeline.
 
-| <img src="./README/gif_xsession.gif"> | ![tab_rigc](./README/tab_rigc.png) |
+| ![order](./README/order.png) | <img src="./README/gif_xsession.gif"> |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 
 **Public sessions and odometry.** The pipeline achieves the lowest held-out mean on all five public sessions. With OpenVINS, the intrinsics yield the lowest trajectory error on all three Rig-C sequences and the lowest median error on Rig-D.
