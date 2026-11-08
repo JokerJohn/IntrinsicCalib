@@ -8,7 +8,7 @@
 
 ![IntrinsicCalib](./README/hero.png)
 
-<a href="https://arxiv.org/abs/2609.10082"><img src="https://img.shields.io/badge/arXiv-2609.10082-b31b1b" alt="arXiv"></a><a><img src="https://img.shields.io/badge/IEEE%20RA--P-Accepted-green" alt="RA-P"></a><a href="./README/intrinsic_calib_video.mp4"><img src="https://img.shields.io/badge/Video-Paper%20Video-blue" alt="Video"></a><a><img alt="PRs-Welcome" src="https://img.shields.io/badge/PRs-Welcome-white" /></a>[![GitHub Stars](https://img.shields.io/github/stars/JokerJohn/IntrinsicCalib.svg)](https://github.com/JokerJohn/IntrinsicCalib/stargazers)<a href="https://github.com/JokerJohn/IntrinsicCalib/network/members"><img alt="FORK" src="https://img.shields.io/github/forks/JokerJohn/IntrinsicCalib?color=white" /></a>[![GitHub Issues](https://img.shields.io/github/issues/JokerJohn/IntrinsicCalib.svg)](https://github.com/JokerJohn/IntrinsicCalib/issues)[![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+<a href="https://arxiv.org/abs/2609.10082"><img src="https://img.shields.io/badge/arXiv-2609.10082-b31b1b" alt="arXiv"></a><a href="https://ieeexplore.ieee.org/document/11780539"><img src="https://img.shields.io/badge/IEEE%20RA--P-10.1109%2FRAP.2026.3751239-00629B" alt="RA-P"></a><a href="./README/intrinsic_calib_video.mp4"><img src="https://img.shields.io/badge/Video-Paper%20Video-blue" alt="Video"></a><a><img alt="PRs-Welcome" src="https://img.shields.io/badge/PRs-Welcome-white" /></a>[![GitHub Stars](https://img.shields.io/github/stars/JokerJohn/IntrinsicCalib.svg)](https://github.com/JokerJohn/IntrinsicCalib/stargazers)<a href="https://github.com/JokerJohn/IntrinsicCalib/network/members"><img alt="FORK" src="https://img.shields.io/github/forks/JokerJohn/IntrinsicCalib?color=white" /></a>[![GitHub Issues](https://img.shields.io/github/issues/JokerJohn/IntrinsicCalib.svg)](https://github.com/JokerJohn/IntrinsicCalib/issues)[![License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
 </div>
 
@@ -27,6 +27,7 @@ Accurate camera intrinsic calibration depends on the quality of the collected im
 
 ## News
 
+- **2026/11**: The paper is published in IEEE Robotics and Automation Practice (RA-P) as early access, [DOI: 10.1109/RAP.2026.3751239](https://ieeexplore.ieee.org/document/11780539).
 - **2026/11**: The paper has been accepted by IEEE Robotics and Automation Practice (RA-P).
 - **2026/10/11**: The calibration tool, data and experiment scripts are released.
 - **2026/09/09**: The paper is available on [arXiv](https://arxiv.org/abs/2609.10082).
@@ -146,7 +147,7 @@ tests/         tests of the Rig-A selection, the AprilGrid extraction and the to
   title         = {Automatic Reproducible Camera Intrinsic Calibration},
   author        = {Hu, Xiangcheng},
   journal       = {IEEE Robotics and Automation Practice},
-  note          = {Accepted},
+  doi           = {10.1109/RAP.2026.3751239},
   eprint        = {2609.10082},
   archivePrefix = {arXiv},
   primaryClass  = {cs.RO},
